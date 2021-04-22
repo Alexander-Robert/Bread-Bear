@@ -66,6 +66,7 @@ class Play extends Phaser.Scene {
 
         //GAME OVER flag
         this.gameOver = false;
+        this.gameOverDisplayed = false;
     }
 
     update() {
@@ -77,10 +78,12 @@ class Play extends Phaser.Scene {
             this.scene.start("menuScene");
         }
 
-        this.background.tilePositionY -= scrollSpeed;
         //update while game is going
         if (!this.gameOver) {
-            //TODO: remove this when actualy game over is implemented
+            //scroll background
+            this.background.tilePositionY -= scrollSpeed;
+
+            //TODO: remove this when actual game over is implemented
             //temp testing for game over logic
             if (Phaser.Input.Keyboard.JustDown(keyDOWN)) {
                 this.gameOver = true;
@@ -96,14 +99,16 @@ class Play extends Phaser.Scene {
             
         }
         else {
-            //TODO: make another bool so this function only gets called once
-            this.gameOverText();
+            if(!this.gameOverDisplayed){
+                this.gameOverText();
+                this.gameOverDisplayed = true;
+            }
         }
         
-        //check collisions
-        if (this.checkCollision(this.breadbear, this.spreads.butter)) {
-            console.log('collided!');
-        }
+        // //check collisions
+        // if (this.checkCollision(this.breadbear, this.spreads.butter)) {
+        //     console.log('collided!');
+        // }
     }
 
     //TODO: change simple AABB collision detection to Phaser physics collision detection
@@ -120,7 +125,6 @@ class Play extends Phaser.Scene {
         }
     }
 
-    //TODO: fix scoreConfig property to have text wrap properly
     gameOverText() {
         //display game over text
         this.add.text(game.config.width / 2, game.config.height / 2 - 64, 'GAME OVER',

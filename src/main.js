@@ -1,6 +1,6 @@
 //main game object
 let config = {
-    type: Phaser.CANVAS,
+    type: Phaser.AUTO,
     width: 480,
     height: 640,
     physics: {
@@ -22,11 +22,10 @@ let game = new Phaser.Game(config);
 let borderUISize = game.config.height / 15;
 let borderPadding = borderUISize / 5;
 
-//TODO: see if there's a better scope to bind this to
+let scrollSpeed = 4; //pixels per frame
+
 //height offset for player
 let playerHeightOffset = 50;
-
-let scrollSpeed = 4; //pixels per frame
 
 //initialize high score
 game.highScore = { points: 0, time: 0, distance: 0};
