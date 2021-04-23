@@ -9,6 +9,9 @@ class Play extends Phaser.Scene {
         this.load.image('background', './assets/background.png');
         this.load.image('breadbear', './assets/breadbear.png');
         this.load.image('birds', './assets/birds.png');
+        this.load.image('butter', './assets/butter.png');
+        this.load.image('avocado', './assets/avocado.png');
+        this.load.image('jam', './assets/jam.png');
     }
     create() { //remember last things added in create are made first!!!!
         //add background
@@ -59,10 +62,13 @@ class Play extends Phaser.Scene {
             //each spread type will be an array of objects of that spread type 
         //create spreads object 
         this.spreads = {
-            butter: 0,
-            jam: 0,
-            avocado: 0
+            butter: [],
+            jam: [],
+            avocado: []
         }
+        //create spreads
+        //TODO: more spreads than just butter
+        this.spreads.butter.push(new Spread(this, game.config.width / 2, 32, 'butter', true));
 
         //GAME OVER flag
         this.gameOver = false;
@@ -91,6 +97,14 @@ class Play extends Phaser.Scene {
 
             //update bread bear
                 this.breadbear.update();
+
+            //update spreads
+            //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for...in
+            for (let spreadType in this.spreads){
+                for (let spread of this.spreads[spreadType]){
+                    spread.update();
+                }
+            }
 
             //update timer
             //TODO: find out way to properly call totalElapsedSeconds from this scene
