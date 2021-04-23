@@ -58,8 +58,8 @@ class Play extends Phaser.Scene {
             'breadbear');
 
         //TODO: implement spreads (images, collisions, collision effect)
-            //spreads will be an object of each spread type, 
-            //each spread type will be an array of objects of that spread type 
+        //spreads will be an object of each spread type, 
+        //each spread type will be an array of objects of that spread type 
         //create spreads object 
         this.spreads = {
             butter: [],
@@ -68,7 +68,20 @@ class Play extends Phaser.Scene {
         }
         //create spreads
         //TODO: more spreads than just butter
-        this.spreads.butter.push(new Spread(this, game.config.width / 2, 32, 'butter', true));
+        this.spreads.butter.push(new Spread(this, 0, 32, 'butter', true));
+        this.spreads.butter.push(new Spread(this, 0, 32, 'butter', true));
+        this.spreads.butter.push(new Spread(this, 0, 32, 'butter', true));
+
+        //set positions and timers on spreads
+        //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for...in
+        //spreadType is the enumberable property of spreads (i.e the keys: "butter", "jam", "avocado")
+        for (let spreadType in this.spreads) {
+            //spreads[spreadType] is accessing the value of the key which is an array
+            //array uses for of loop to access each element in the array which is an individual sprite object
+            for (let spread of this.spreads[spreadType]) {
+                spread.create();
+                }
+            }
 
         //GAME OVER flag
         this.gameOver = false;
@@ -96,29 +109,33 @@ class Play extends Phaser.Scene {
             }
 
             //update bread bear
-                this.breadbear.update();
+            this.breadbear.update();
 
-            //update spreads
-            //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for...in
-            for (let spreadType in this.spreads){
-                for (let spread of this.spreads[spreadType]){
+            for (let spreadType in this.spreads) {
+                for (let spread of this.spreads[spreadType]) {
                     spread.update();
+                    //TODO: update collisions to work with Phaser arcade phyics 
+                    //TODO: consider reusing sprite instead of destroying it. 
+                        //(place it off screen, set internal timer on object, on end of timer, respawn it at the top)
+                    if (this.checkCollision(this.breadbear, spread)) {
+                        console.log('collided!');
+                    }
                 }
             }
 
-            //update timer
+            //update game timer
             //TODO: find out way to properly call totalElapsedSeconds from this scene
             //this.score.time = this.time.totalElapsedSeconds();
             this.score.scoreText[2].text = Math.floor(this.score.time);
-            
+
         }
         else {
-            if(!this.gameOverDisplayed){
+            if (!this.gameOverDisplayed) {
                 this.gameOverText();
                 this.gameOverDisplayed = true;
             }
         }
-        
+
         // //check collisions
         // if (this.checkCollision(this.breadbear, this.spreads.butter)) {
         //     console.log('collided!');
