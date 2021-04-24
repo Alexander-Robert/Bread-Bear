@@ -1,10 +1,12 @@
 //TODO: see if we need a class for spreads or basic attributes for spreads objects in Play.js
-class Spread extends Phaser.GameObjects.Sprite {
+class Spread extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, x, y, texture, speedUp, timerPosition, frame) {
         super(scene, x, y, texture, frame);
         scene.add.existing(this);   //add Object to existing scene
+        scene.physics.add.existing(this);
         this.boostPlayer = speedUp; //bool to check if collision should boost or slow player
         this.timer = timerPosition; //initial spawning dictates when spreads will fall in what order
+        this.MAX_VELOCITY = 200;
     }
     create() {
         //spawn spread on 1 of 3 "lanes"
@@ -21,15 +23,18 @@ class Spread extends Phaser.GameObjects.Sprite {
             default:
                 console.log("Spread.js create(): error, number out of range.");
                 break;
-        }
+        }        
         //TODO: create the timer of all objects based off difficulty mode adjusted by scrollSpeed
         //create a timer for object to start moving down screen
-        //this.timer = ;
+
+        //set downward velocity
+        //TODO: put the velocity setting inside: if (timer is 0)
+        this.setVelocityY(this.MAX_VELOCITY);
     }
     update() {
-        //move spread down (while on screen)
-        //TODO: add && conditional checking if timer is 0
-        if (this.y <= game.config.height + this.height)
-        this.y += scrollSpeed * 1.25;
+        if (this.y > game.config.height + this.height) {
+            //TODO: replace line below with destroy object?
+            this.body.velocity.y = 0;
+        }
     }
 }

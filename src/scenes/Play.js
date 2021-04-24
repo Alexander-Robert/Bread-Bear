@@ -56,6 +56,8 @@ class Play extends Phaser.Scene {
         //create player's character
         this.breadbear = new Breadbear(this, game.config.width / 2, game.config.height - playerHeightOffset,
             'breadbear');
+        //automatic detection of  worldBounds
+        this.breadbear.collideWorldBounds = true;
 
         //TODO: implement spreads (images, collisions, collision effect)
         //spreads will be an object of each spread type, 
@@ -83,6 +85,8 @@ class Play extends Phaser.Scene {
                 }
             }
 
+        
+        
         //GAME OVER flag
         this.gameOver = false;
         this.gameOverDisplayed = false;
@@ -100,6 +104,7 @@ class Play extends Phaser.Scene {
         //update while game is going
         if (!this.gameOver) {
             //scroll background
+            //TODO: remove this when tinting and clouds are implemented
             this.background.tilePositionY -= scrollSpeed;
 
             //TODO: remove this when actual game over is implemented
