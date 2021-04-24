@@ -68,9 +68,9 @@ class Play extends Phaser.Scene {
         }
         //create spreads
         //TODO: more spreads than just butter
-        this.spreads.butter.push(new Spread(this, 0, 32, 'butter', true));
-        this.spreads.butter.push(new Spread(this, 0, 32, 'butter', true));
-        this.spreads.butter.push(new Spread(this, 0, 32, 'butter', true));
+        this.spreads.butter.push(new Spread(this, 0, -32, 'butter', true));
+        this.spreads.butter.push(new Spread(this, 0, -32, 'butter', true));
+        this.spreads.butter.push(new Spread(this, 0, -32, 'butter', true));
 
         //set positions and timers on spreads
         //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for...in

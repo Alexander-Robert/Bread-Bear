@@ -1,18 +1,22 @@
 // doughnut (player) prefab
-class Breadbear extends Phaser.GameObjects.Sprite {
+class Breadbear extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, x, y, texture, frame) {
         super(scene, x, y, texture, frame);
         //add Object to existing scene
         scene.add.existing(this);
-        this.moveSpeed = 3; //pixels per frame
+        scene.physics.add.existing(this);
+        this.MAX_VELOCITY = 225;
     }
 
     update() {
         // left/right movement
         if (keyLEFT.isDown && this.x >= this.width) {
-            this.x -= this.moveSpeed;
+            this.setVelocityX(-this.MAX_VELOCITY);
         } else if (keyRIGHT.isDown && this.x <= game.config.width - this.width) {
-            this.x += this.moveSpeed;
+            this.setVelocityX(this.MAX_VELOCITY);
+        }
+        else{
+            this.body.velocity.x = 0;
         }
     }
 
