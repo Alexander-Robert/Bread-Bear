@@ -56,8 +56,7 @@ class Play extends Phaser.Scene {
         //create player's character
         this.breadbear = new Breadbear(this, game.config.width / 2, game.config.height - playerHeightOffset,
             'breadbear');
-        //automatic detection of  worldBounds
-        this.breadbear.collideWorldBounds = true;
+        this.breadbear.setImmovable(true);
 
         //TODO: implement spreads (images, collisions, collision effect)
         //spreads will be an object of each spread type, 
@@ -85,8 +84,6 @@ class Play extends Phaser.Scene {
                 }
             }
 
-        
-        
         //GAME OVER flag
         this.gameOver = false;
         this.gameOverDisplayed = false;
@@ -122,9 +119,15 @@ class Play extends Phaser.Scene {
                     //TODO: update collisions to work with Phaser arcade phyics 
                     //TODO: consider reusing sprite instead of destroying it. 
                         //(place it off screen, set internal timer on object, on end of timer, respawn it at the top)
-                    if (this.checkCollision(this.breadbear, spread)) {
-                        console.log('collided!');
-                    }
+                    this.physics.collide(this.breadbear, spread, () => {
+                        spread.destroy();
+                        this.breadbear.speedUp(1000);
+                    });
+                        // if (this.checkCollision(this.breadbear, spread)) {
+                        //     spread.destroy();
+                        //     this.breadbear.speedUp(500);
+                        // console.log('collided!');
+                    //}
                 }
             }
 
