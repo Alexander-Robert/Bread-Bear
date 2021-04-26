@@ -1,4 +1,3 @@
-//TODO: see if we need a class for spreads or basic attributes for spreads objects in Play.js
 class Spread extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, x, y, texture, speedUp, frame) {
         super(scene, x, y, texture, frame);
@@ -33,13 +32,7 @@ class Spread extends Phaser.Physics.Arcade.Sprite {
     }
     update() {
         if (this.y > game.config.height + this.height) {
-                //TODO: replace line below with destroy object?
-                //this.body.velocity.y = 0;
-                this.destroySpread();
+                this.destroy();
         }
-    }
-
-    destroySpread() {
-        this.destroy();
     }
 }
