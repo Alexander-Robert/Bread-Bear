@@ -49,44 +49,38 @@ class Play extends Phaser.Scene {
         };
         //TODO: change scoreText to a map (allows sorting by key instead of remembering index and it's iterable unlike objects)  
         //add text boxes to scoreText array in the score object
-        this.score.scoreText.push(this.add.text(50, 25, this.score.points, this.scoreConfig));
-        this.score.scoreText.push(this.add.text(125, 25, this.score.time, this.scoreConfig));
-        this.score.scoreText.push(this.add.text(200, 25, this.score.distance, this.scoreConfig));
+        //this.score.scoreText.push(this.add.text(50, 25, this.score.points, this.scoreConfig));
+        //this.score.scoreText.push(this.add.text(125, 25, this.score.time, this.scoreConfig));
+        //this.score.scoreText.push(this.add.text(200, 25, this.score.distance, this.scoreConfig));
 
         //create player's character
         this.breadbear = new Breadbear(this, game.config.width / 2, game.config.height - playerHeightOffset,
             'breadbear');
         this.breadbear.setImmovable(true);
 
-        //TODO: implement spreads (images, collisions, collision effect)
-        //spreads will be an object of each spread type, 
-        //each spread type will be an array of objects of that spread type 
-        //create spreads object 
-        this.spreads = {
-            butter: [],
-            jam: [],
-            avocado: []
-        }
-        //create spreads
-        //TODO: more spreads than just butter
-        this.spreads.butter.push(new Spread(this, 0, -32, 'butter', true));
-        this.spreads.butter.push(new Spread(this, 0, -32, 'butter', true));
-        this.spreads.butter.push(new Spread(this, 0, -32, 'butter', true));
+        //TODO: implement spreads
+        this.spreadGroup = this.add.group({
+            runChildUpdate: true,    // make sure update runs on group children
+        });
 
-        //set positions and timers on spreads
-        //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for...in
-        //spreadType is the enumberable property of spreads (i.e the keys: "butter", "jam", "avocado")
-        for (let spreadType in this.spreads) {
-            //spreads[spreadType] is accessing the value of the key which is an array
-            //array uses for of loop to access each element in the array which is an individual sprite object
-            for (let spread of this.spreads[spreadType]) {
-                spread.create();
-                }
-            }
+        this.spreadSpawnTimer = this.time.addEvent({
+            delay: 2500,
+            callback: this.addSpread,
+            callbackScope: this,
+            loop: true
+        });
 
         //GAME OVER flag
         this.gameOver = false;
         this.gameOverDisplayed = false;
+    }
+
+    addSpread(){
+        //create spreads
+        //TODO: more spreads than just butter
+        let spread = new Spread(this, 0, -32, 'butter', true);
+        spread.create();
+        this.spreadGroup.add(spread);
     }
 
     update() {
@@ -112,29 +106,14 @@ class Play extends Phaser.Scene {
 
             //update bread bear
             this.breadbear.update();
+            
+            this.physics.world.collide(this.breadbear, this.spreadGroup, this.spreadCollision, null, this);
 
-            for (let spreadType in this.spreads) {
-                for (let spread of this.spreads[spreadType]) {
-                    spread.update();
-                    //TODO: update collisions to work with Phaser arcade phyics 
-                    //TODO: consider reusing sprite instead of destroying it. 
-                        //(place it off screen, set internal timer on object, on end of timer, respawn it at the top)
-                    this.physics.collide(this.breadbear, spread, () => {
-                        spread.destroy();
-                        this.breadbear.speedUp(1000);
-                    });
-                        // if (this.checkCollision(this.breadbear, spread)) {
-                        //     spread.destroy();
-                        //     this.breadbear.speedUp(500);
-                        // console.log('collided!');
-                    //}
-                }
-            }
 
             //update game timer
             //TODO: find out way to properly call totalElapsedSeconds from this scene
             //this.score.time = this.time.totalElapsedSeconds();
-            this.score.scoreText[2].text = Math.floor(this.score.time);
+            //this.score.scoreText[2].text = Math.floor(this.score.time);
 
         }
         else {
@@ -143,25 +122,24 @@ class Play extends Phaser.Scene {
                 this.gameOverDisplayed = true;
             }
         }
-
-        // //check collisions
-        // if (this.checkCollision(this.breadbear, this.spreads.butter)) {
-        //     console.log('collided!');
-        // }
     }
 
-    //TODO: change simple AABB collision detection to Phaser physics collision detection
-    checkCollision(Breadbear, spreadObject) {
-        //simple AABB checking
-        if (Breadbear.x < spreadObject.x + spreadObject.width &&
-            Breadbear.x + Breadbear.width > spreadObject.x &&
-            Breadbear.y < spreadObject.y + spreadObject.height &&
-            Breadbear.height + Breadbear.y > spreadObject.y) {
-            return true;
+    spreadCollision() {
+        let spreadArray = this.spreadGroup.getChildren();
+        let closest = 10000; //look at each object to see which is closest to bread bear 
+        //(i.e. which spread collided with bread bear)
+        let targetSpread;
+        for (let spread of spreadArray) {
+            let distance = Math.sqrt(Math.pow((this.breadbear.x - spread.x), 2) 
+                                   + Math.pow((this.breadbear.y - spread.y), 2));
+            if (closest > distance) {
+                closest = distance;
+                targetSpread = spread;
+            }
         }
-        else {
-            return false;
-        }
+        this.spreadGroup.remove(targetSpread);
+        targetSpread.destroy();
+        this.breadbear.speedUp(750);
     }
 
     gameOverText() {

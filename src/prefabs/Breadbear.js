@@ -7,7 +7,7 @@ class Breadbear extends Phaser.Physics.Arcade.Sprite {
         scene.physics.add.existing(this);
         this.scene = scene;
         this.MAX_VELOCITY = 225;
-        this.ACCELERATION = 250;
+        this.ACCELERATION = 500;
         this.DRAG = 100;
     }
 
@@ -23,12 +23,11 @@ class Breadbear extends Phaser.Physics.Arcade.Sprite {
             this.body.velocity.x = 0;
         }
 
-        // //check if we've slowed to a stop
-        // if (this.body.velocity.y == 0 && this.body.velocity.y < 20) {
-        //     //make sure we don't go the opposite direction
-        //     this.setAccelerationY(0);
-        //     this.body.velocity.y = 0;
-        // }
+        if (this.body.velocity.y == 0) {
+            //slowly drift down when not collecting spreads
+            //this.setAccelerationY(5);
+            //this.body.velocity.y = 0;
+        }
     }
 
     //TODO: implement function. (gets call from collision handling in Play.js)
@@ -39,11 +38,11 @@ class Breadbear extends Phaser.Physics.Arcade.Sprite {
         this.setAccelerationY(-this.ACCELERATION);
         //after acceleration duration, slow it down
         this.scene.time.delayedCall(duration, () => { 
-            this.setAccelerationY(this.ACCELERATION);
-        });
-        this.scene.time.delayedCall((duration * 2), () => { 
-            this.setAccelerationY(0);
-            this.setVelocityY(0);
+            this.setAccelerationY(this.ACCELERATION * 2);
+            this.scene.time.delayedCall((duration / 2), () => { 
+                this.setAccelerationY(0);
+                this.setVelocityY(0);
+            });
         });
         //speedUp player (increase background scroll speed, give player acceleration upwards for x amount of time)
             //x amount of time based on player's y position (higher up, less time to move up)

@@ -1,12 +1,12 @@
 //TODO: see if we need a class for spreads or basic attributes for spreads objects in Play.js
 class Spread extends Phaser.Physics.Arcade.Sprite {
-    constructor(scene, x, y, texture, speedUp, timerPosition, frame) {
+    constructor(scene, x, y, texture, speedUp, frame) {
         super(scene, x, y, texture, frame);
         scene.add.existing(this);   //add Object to existing scene
         scene.physics.add.existing(this);
         this.boostPlayer = speedUp; //bool to check if collision should boost or slow player
-        this.timer = timerPosition; //initial spawning dictates when spreads will fall in what order
         this.MAX_VELOCITY = 200;
+
     }
     create() {
         //spawn spread on 1 of 3 "lanes"
@@ -33,8 +33,13 @@ class Spread extends Phaser.Physics.Arcade.Sprite {
     }
     update() {
         if (this.y > game.config.height + this.height) {
-            //TODO: replace line below with destroy object?
-            this.body.velocity.y = 0;
+                //TODO: replace line below with destroy object?
+                //this.body.velocity.y = 0;
+                this.destroySpread();
         }
+    }
+
+    destroySpread() {
+        this.destroy();
     }
 }
