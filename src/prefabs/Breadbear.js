@@ -33,7 +33,7 @@ class Breadbear extends Phaser.Physics.Arcade.Sprite {
     //TODO: implement function. (gets call from collision handling in Play.js)
         //TODO: figure out if internal speedUp amount should be handled here or in Play.js
     speedUp(duration) {
-        console.log("speed up!");
+        //console.log("speed up!");
         //set upward acceleration
         this.setAccelerationY(-this.ACCELERATION);
         //after acceleration duration, slow it down

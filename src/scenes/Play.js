@@ -8,7 +8,7 @@ class Play extends Phaser.Scene {
         //load images
         this.load.image('background', './assets/background.png');
         this.load.image('breadbear', './assets/breadbear.png');
-        this.load.image('birds', './assets/birds.png');
+        this.load.image('bird', './assets/birds.png');
         this.load.image('butter', './assets/butter.png');
         this.load.image('avocado', './assets/avocado.png');
         this.load.image('jam', './assets/jam.png');
@@ -70,6 +70,21 @@ class Play extends Phaser.Scene {
             loop: true
         });
 
+        this.birdGroup = this.add.group({
+            runChildUpdate: true,
+        });
+
+        this.birdGroup.add(new Bird(this,(game.config.width / 4), game.config.height - 32,'bird'));
+        this.birdGroup.add(new Bird(this,(game.config.width / 2), game.config.height - 32,'bird'));
+        this.birdGroup.add(new Bird(this,((3* game.config.width) / 4), game.config.height - 32,'bird'));
+
+        this.birdSwoopTimer = this.time.addEvent({
+            delay: 4000,
+            callback: this.birdSwoop,
+            callbackScope: this,
+            loop: true
+        });
+
         //GAME OVER flag
         this.gameOver = false;
         this.gameOverDisplayed = false;
@@ -108,6 +123,7 @@ class Play extends Phaser.Scene {
             this.breadbear.update();
             
             this.physics.world.collide(this.breadbear, this.spreadGroup, this.spreadCollision, null, this);
+            this.physics.world.collide(this.breadbear, this.birdGroup, this.birdCollision, null, this);
 
 
             //update game timer
@@ -140,6 +156,33 @@ class Play extends Phaser.Scene {
         this.spreadGroup.remove(targetSpread);
         targetSpread.destroy();
         this.breadbear.speedUp(750);
+    }
+
+
+    birdCollision() {
+        let spreadArray = this.spreadGroup.getChildren();
+        for (let spread of spreadArray){
+            spread.setAccelerationY(0);
+            spread.setVelocityY(0);
+        }
+        let birdArray = this.birdGroup.getChildren();
+        for (let bird of birdArray){
+            bird.setAccelerationY(0);
+            bird.setVelocityY(0);
+        }
+        this.spreadSpawnTimer.remove();
+        this.birdSwoopTimer.remove();
+        this.gameOver = true;        
+    }
+
+    //have a random bird fly up and back down again
+    birdSwoop(){
+        //select a random bird
+        let birdArray = this.birdGroup.getChildren();
+        let bird = birdArray[Phaser.Math.Between(0,birdArray.length-1)];
+        bird.flyUp();
+        //birds will swoop every 4-7 seconds
+        this.birdSwoopTimer.delay = Phaser.Math.Between(4000, 7000);
     }
 
     gameOverText() {

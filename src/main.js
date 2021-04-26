@@ -6,7 +6,7 @@ let config = {
     physics: {
         default: 'arcade',
         arcade: {
-            //debug: true,
+            debug: true,
             gravity: {
                 x:0,
                 y:0
@@ -25,7 +25,7 @@ let borderPadding = borderUISize / 5;
 let scrollSpeed = 4; //pixels per frame
 
 //height offset for player
-let playerHeightOffset = 50;
+let playerHeightOffset = 100;
 
 //initialize high score
 game.highScore = { points: 0, time: 0, distance: 0};
