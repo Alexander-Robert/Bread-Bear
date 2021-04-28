@@ -58,7 +58,26 @@ class Play extends Phaser.Scene {
         this.breadbear = new Breadbear(this, game.config.width / 2, game.config.height - playerHeightOffset,
             'breadbear');
         this.breadbear.setImmovable(true);
+        this.breadbear.body.setAllowGravity(false);
+        this.time.addEvent({ //after a few seconds, the player will start to fall
+            delay: 1000,
+            callback: () => {
+                this.breadbear.body.setAllowGravity(true);
+                this.breadbear.setGravityY(5); //give breadbear less gravity so he doesn't fall too quickly
+            },
+            callbackScope: this,
+            loop: false
+        });
+        
 
+        //create a physics body with no texture (used to have birds fall back to position after swooping)
+        this.phantomBox = this.physics.add.sprite(game.config.width/2,
+            game.config.height - 25).setOrigin(0,0); //creates at said position
+        this.phantomBox.body.setSize(game.config.width + 100, 20); //makes it a rectangle of said dimensions
+        this.phantomBox.setImmovable(true); //collision doesn't move this object
+        this.phantomBox.body.setAllowGravity(false); //gravity should not affect this object
+        
+        //implement spreads as a group
         this.spreadGroup = this.add.group({
             runChildUpdate: true,    // make sure update runs on group children
         });
@@ -66,6 +85,7 @@ class Play extends Phaser.Scene {
         //timed loop to create new spreads
         this.spreadSpawnTimer = this.time.addEvent({
             delay: 2500,
+            startAt: 1000, //starts spawning objects 1 second after starting the game
             callback: () => {        
                 //create spreads
                 //TODO: more spreads than just butter (implement slow down for other spreads)
@@ -88,7 +108,14 @@ class Play extends Phaser.Scene {
         //timed loop to have the birds swoop up at bread bear
         this.birdSwoopTimer = this.time.addEvent({
             delay: 4000,
-            callback: this.birdSwoop,
+            callback: () => {
+                //have a random bird fly up and back down again
+                let birdArray = this.birdGroup.getChildren();
+                let bird = birdArray[Phaser.Math.Between(0, birdArray.length - 1)];
+                bird.body.setVelocityY(-100);
+                //birds will swoop every 4-7 seconds
+                this.birdSwoopTimer.delay = Phaser.Math.Between(4000, 7000);
+            },
             callbackScope: this,
             loop: true
         });
@@ -118,6 +145,10 @@ class Play extends Phaser.Scene {
             this.scene.start("menuScene");
         }
 
+        //put this outside the if (!this.gameOver) block because it should update reguardless
+        //check collisions with the birds and phantomBox
+        this.physics.world.collide(this.birdGroup, this.phantomBox);
+
         //update while game is going
         if (!this.gameOver) {
             //scroll background
@@ -127,11 +158,15 @@ class Play extends Phaser.Scene {
             //TODO: remove this when testing for game is done
             //temp testing for game over logic
             if (Phaser.Input.Keyboard.JustDown(keyDOWN)) {
-                this.birdCollision();
+                this.stopGame();
             }
 
             //update bread bear
             this.breadbear.update();
+
+            //if bread bear has fallen off screen, game over
+            if (this.breadbear.y > game.config.height + this.breadbear.height)
+                this.stopGame();
             
             //check collisions with breadbear and spreads
             this.physics.world.collide(this.spreadGroup, this.breadbear, (spread) => {
@@ -140,41 +175,33 @@ class Play extends Phaser.Scene {
                     this.breadbear.speedUp(750);
                 }, null, this);
             //check collisions with breadbear and birds
-            this.physics.world.collide(this.birdGroup, this.breadbear, this.birdCollision, null, this);
+            this.physics.world.collide(this.birdGroup, this.breadbear, (bird) => {
+                bird.setAccelerationY(0);
+                bird.setVelocityY(0);
+                this.stopGame();
+            }, null, this);
         }
         else {
-            if (!this.gameOverDisplayed) {
+            if (!this.gameOverDisplayed) { //put in this if statement so update doesn't keep calling gameOverText();
                 this.gameOverText();
                 this.gameOverDisplayed = true;
             }
         }
     }
 
-    //stopping movement and timers before switching to gameOver conditions
-    birdCollision(bird) {
+    //stopping movement and timers before switching to the game over text screen
+    stopGame() {
         //stop all spreads on screen from moving
         let spreadArray = this.spreadGroup.getChildren();
-        for (let spread of spreadArray){
+        for (let spread of spreadArray) {
             spread.setAccelerationY(0);
             spread.setVelocityY(0);
         }
-        //stop the bird on screen from moving
-        bird.setAccelerationY(0);
-        bird.setVelocityY(0);
         //remove the looping timers of the game's mechanics
         this.spreadSpawnTimer.remove();
         this.birdSwoopTimer.remove();
-        this.gameOver = true;        
-    }
-
-    //have a random bird fly up and back down again
-    birdSwoop(){
-        //select a random bird
-        let birdArray = this.birdGroup.getChildren();
-        let bird = birdArray[Phaser.Math.Between(0,birdArray.length-1)];
-        bird.flyUp();
-        //birds will swoop every 4-7 seconds
-        this.birdSwoopTimer.delay = Phaser.Math.Between(4000, 7000);
+        this.updateScoreTimer.remove();
+        this.gameOver = true;
     }
 
     gameOverText() {

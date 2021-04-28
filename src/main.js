@@ -9,7 +9,7 @@ let config = {
             debug: true,
             gravity: {
                 x:0,
-                y:0
+                y:50
             }
         }
     },
@@ -25,7 +25,7 @@ let borderPadding = borderUISize / 5;
 let scrollSpeed = 4; //pixels per frame
 
 //height offset for player
-let playerHeightOffset = 100;
+let playerHeightOffset = 250;
 
 //initialize high score
 game.highScore = { points: 0, time: 0, distance: 0};
