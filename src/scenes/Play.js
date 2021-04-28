@@ -40,19 +40,19 @@ class Play extends Phaser.Scene {
             },
             wordWrap: { width: game.config.width, useAdvancedWrap: true }
         }
+        
         //add score data structure (stores the text boxes in score object)
         this.score = {
             points: 0,
             time: 0,
-            distance: 0,
-            scoreText: []
+            distance: 0
         };
         //TODO: change score to a map with "points", "time", "distance" as keys and values is object of value and text 
             //(allows sorting by key instead of remembering index and it's iterable unlike objects)  
-        //add text boxes to scoreText array in the score object
-        this.score.scoreText.push(this.add.text(50, 25, this.score.points, this.scoreConfig));
-        this.score.scoreText.push(this.add.text(125, 25, this.score.time, this.scoreConfig));
-        this.score.scoreText.push(this.add.text(200, 25, this.score.distance, this.scoreConfig));
+        //add text boxes to display values on screen
+        this.pointsText = this.add.text(50, 25, this.score.points, this.scoreConfig);
+        this.timeText = this.add.text(125, 25, this.score.time, this.scoreConfig);
+        this.distanceText = this.add.text(200, 25, this.score.distance, this.scoreConfig);
 
         //create player's character
         this.breadbear = new Breadbear(this, game.config.width / 2, game.config.height - playerHeightOffset,
@@ -126,7 +126,7 @@ class Play extends Phaser.Scene {
             delay: 1000,
             callback: () => {
                 this.score.time++;
-                this.score.scoreText[1].text = this.score.time;},
+                this.timeText.text = this.score.time;},
             callbackScope: this,
             loop: true
         });
