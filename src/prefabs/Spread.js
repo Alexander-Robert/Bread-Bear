@@ -23,14 +23,11 @@ class Spread extends Phaser.Physics.Arcade.Sprite {
                 console.log("Spread.js create(): error, number out of range.");
                 break;
         }        
-        //TODO: create the timer of all objects based off difficulty mode adjusted by scrollSpeed
-        //create a timer for object to start moving down screen
-
         //set downward velocity
-        //TODO: put the velocity setting inside: if (timer is 0)
         this.setVelocityY(this.MAX_VELOCITY);
     }
     update() {
+        //if the spread goes offscreen, destroy it
         if (this.y > game.config.height + this.height) {
                 this.destroy();
         }

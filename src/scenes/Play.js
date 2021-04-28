@@ -47,37 +47,45 @@ class Play extends Phaser.Scene {
             distance: 0,
             scoreText: []
         };
-        //TODO: change scoreText to a map (allows sorting by key instead of remembering index and it's iterable unlike objects)  
+        //TODO: change score to a map with "points", "time", "distance" as keys and values is object of value and text 
+            //(allows sorting by key instead of remembering index and it's iterable unlike objects)  
         //add text boxes to scoreText array in the score object
-        //this.score.scoreText.push(this.add.text(50, 25, this.score.points, this.scoreConfig));
-        //this.score.scoreText.push(this.add.text(125, 25, this.score.time, this.scoreConfig));
-        //this.score.scoreText.push(this.add.text(200, 25, this.score.distance, this.scoreConfig));
+        this.score.scoreText.push(this.add.text(50, 25, this.score.points, this.scoreConfig));
+        this.score.scoreText.push(this.add.text(125, 25, this.score.time, this.scoreConfig));
+        this.score.scoreText.push(this.add.text(200, 25, this.score.distance, this.scoreConfig));
 
         //create player's character
         this.breadbear = new Breadbear(this, game.config.width / 2, game.config.height - playerHeightOffset,
             'breadbear');
         this.breadbear.setImmovable(true);
 
-        //TODO: implement spreads
         this.spreadGroup = this.add.group({
             runChildUpdate: true,    // make sure update runs on group children
         });
 
+        //timed loop to create new spreads
         this.spreadSpawnTimer = this.time.addEvent({
             delay: 2500,
-            callback: this.addSpread,
+            callback: () => {        
+                //create spreads
+                //TODO: more spreads than just butter (implement slow down for other spreads)
+                let spread = new Spread(this, 0, -32, 'butter', true); //bool arg: true = speed up, false = slow down
+                spread.create(); //have spread be initialized (positioned on random lane and given downward movement)
+                this.spreadGroup.add(spread);},
             callbackScope: this,
             loop: true
         });
 
+        //implement birds as a group
         this.birdGroup = this.add.group({
-            runChildUpdate: true,
+            runChildUpdate: true,   // make sure update runs on group children
         });
 
         this.birdGroup.add(new Bird(this,(game.config.width / 4), game.config.height - 32,'bird'));
         this.birdGroup.add(new Bird(this,(game.config.width / 2), game.config.height - 32,'bird'));
         this.birdGroup.add(new Bird(this,((3* game.config.width) / 4), game.config.height - 32,'bird'));
 
+        //timed loop to have the birds swoop up at bread bear
         this.birdSwoopTimer = this.time.addEvent({
             delay: 4000,
             callback: this.birdSwoop,
@@ -85,17 +93,20 @@ class Play extends Phaser.Scene {
             loop: true
         });
 
+        //update time counter in score
+        //TODO: implement updating the distance in the callback function
+        this.updateScoreTimer = this.time.addEvent({
+            delay: 1000,
+            callback: () => {
+                this.score.time++;
+                this.score.scoreText[1].text = this.score.time;},
+            callbackScope: this,
+            loop: true
+        });
+
         //GAME OVER flag
         this.gameOver = false;
         this.gameOverDisplayed = false;
-    }
-
-    addSpread(){
-        //create spreads
-        //TODO: more spreads than just butter
-        let spread = new Spread(this, 0, -32, 'butter', true);
-        spread.create();
-        this.spreadGroup.add(spread);
     }
 
     update() {
@@ -113,24 +124,23 @@ class Play extends Phaser.Scene {
             //TODO: remove this when tinting and clouds are implemented
             this.background.tilePositionY -= scrollSpeed;
 
-            //TODO: remove this when actual game over is implemented
+            //TODO: remove this when testing for game is done
             //temp testing for game over logic
             if (Phaser.Input.Keyboard.JustDown(keyDOWN)) {
-                this.gameOver = true;
+                this.birdCollision();
             }
 
             //update bread bear
             this.breadbear.update();
             
-            this.physics.world.collide(this.breadbear, this.spreadGroup, this.spreadCollision, null, this);
-            this.physics.world.collide(this.breadbear, this.birdGroup, this.birdCollision, null, this);
-
-
-            //update game timer
-            //TODO: find out way to properly call totalElapsedSeconds from this scene
-            //this.score.time = this.time.totalElapsedSeconds();
-            //this.score.scoreText[2].text = Math.floor(this.score.time);
-
+            //check collisions with breadbear and spreads
+            this.physics.world.collide(this.spreadGroup, this.breadbear, (spread) => {
+                    this.spreadGroup.remove(spread);
+                    spread.destroy();
+                    this.breadbear.speedUp(750);
+                }, null, this);
+            //check collisions with breadbear and birds
+            this.physics.world.collide(this.birdGroup, this.breadbear, this.birdCollision, null, this);
         }
         else {
             if (!this.gameOverDisplayed) {
@@ -140,36 +150,18 @@ class Play extends Phaser.Scene {
         }
     }
 
-    spreadCollision() {
-        let spreadArray = this.spreadGroup.getChildren();
-        let closest = 10000; //look at each object to see which is closest to bread bear 
-        //(i.e. which spread collided with bread bear)
-        let targetSpread;
-        for (let spread of spreadArray) {
-            let distance = Math.sqrt(Math.pow((this.breadbear.x - spread.x), 2) 
-                                   + Math.pow((this.breadbear.y - spread.y), 2));
-            if (closest > distance) {
-                closest = distance;
-                targetSpread = spread;
-            }
-        }
-        this.spreadGroup.remove(targetSpread);
-        targetSpread.destroy();
-        this.breadbear.speedUp(750);
-    }
-
-
-    birdCollision() {
+    //stopping movement and timers before switching to gameOver conditions
+    birdCollision(bird) {
+        //stop all spreads on screen from moving
         let spreadArray = this.spreadGroup.getChildren();
         for (let spread of spreadArray){
             spread.setAccelerationY(0);
             spread.setVelocityY(0);
         }
-        let birdArray = this.birdGroup.getChildren();
-        for (let bird of birdArray){
-            bird.setAccelerationY(0);
-            bird.setVelocityY(0);
-        }
+        //stop the bird on screen from moving
+        bird.setAccelerationY(0);
+        bird.setVelocityY(0);
+        //remove the looping timers of the game's mechanics
         this.spreadSpawnTimer.remove();
         this.birdSwoopTimer.remove();
         this.gameOver = true;        
