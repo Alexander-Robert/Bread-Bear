@@ -100,22 +100,14 @@ class Play extends Phaser.Scene {
         this.birdGroup = this.add.group({
             runChildUpdate: true,   // make sure update runs on group children
         });
-
-        this.birdGroup.add(new Bird(this,(game.config.width / 4), game.config.height - 32,'bird'));
-        this.birdGroup.add(new Bird(this,(game.config.width / 2), game.config.height - 32,'bird'));
-        this.birdGroup.add(new Bird(this,((3* game.config.width) / 4), game.config.height - 32,'bird'));
+        for(let i =0; i != 10; i++) {
+            this.birdGroup.add(new Bird(this,16 + (i * 50), game.config.height - 33,'bird'));
+        }
 
         //timed loop to have the birds swoop up at bread bear
         this.birdSwoopTimer = this.time.addEvent({
             delay: 4000,
-            callback: () => {
-                //have a random bird fly up and back down again
-                let birdArray = this.birdGroup.getChildren();
-                let bird = birdArray[Phaser.Math.Between(0, birdArray.length - 1)];
-                bird.body.setVelocityY(-100);
-                //birds will swoop every 4-7 seconds
-                this.birdSwoopTimer.delay = Phaser.Math.Between(4000, 7000);
-            },
+            callback: this.birdSwoop,
             callbackScope: this,
             loop: true
         });
@@ -187,6 +179,51 @@ class Play extends Phaser.Scene {
                 this.gameOverDisplayed = true;
             }
         }
+    }
+
+    birdSwoop() {
+        let birdArray = this.birdGroup.getChildren();
+        let easyMode = (minVelocity, maxVelocity) => { //choose a random bird to fly up a random height
+            let randomBird = birdArray[Phaser.Math.Between(0, birdArray.length - 1)];
+            if (randomBird.y != game.config.height - 35) { //make sure the bird we're selecting isn't already swooping
+                randomBird = birdArray[Phaser.Math.Between(0, birdArray.length - 1)];
+            }
+            randomBird.body.setVelocityY(-1 * Phaser.Math.Between(minVelocity, maxVelocity));
+        }
+        let mediumMode = () => { //have bird's within an x range of bread bear fly up and back down again
+            for (let bird of birdArray) {
+                let xDist = Math.abs(bird.x - this.breadbear.x);
+                if (xDist < 100) {
+                    //velocity is amplified based off of how far away the birds are from bread bear
+                    let velocity = (-1 * (100 + (Phaser.Math.Distance.BetweenPoints(bird, this.breadbear)) / 5));
+                    if (bird.y != game.config.height - 35) //if the birds are already swooping up at bread bear
+                    {
+                        console.log(bird.y);
+                        bird.body.setVelocityY(velocity / 1.5); //if the bird is already moving towards bread bear
+                    }
+                    else
+                        bird.body.setVelocityY(velocity);
+                }
+            }
+        }
+        switch (game.difficulty) { //use the bird behavior based off the game's chosen difficulty
+            case 1:
+                easyMode(100, game.config.height / 3); //passing the min and max velocity range the birds can fly at
+                break;
+            case 2: 
+                mediumMode();
+                break;
+            case 3: //case 3 (hard mode) has the same functionality of both case 1 and 2
+                mediumMode();
+                //easy mode called after medium mode so that the random velocity bird is not part of the group swooping up
+                easyMode(game.config.height / 4, game.config.height / 2.5); 
+                break;
+            default:
+                console.log(`error, difficulty level ${game.difficulty} doesn't exist`)
+                break;
+        }
+        //birds will swoop every 4-7 seconds
+        this.birdSwoopTimer.delay = Phaser.Math.Between(4000, 7000);
     }
 
     //stopping movement and timers before switching to the game over text screen

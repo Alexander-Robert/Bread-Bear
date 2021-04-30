@@ -50,7 +50,18 @@ time: ${game.highScore.time}`;
     }
 
     update() {
+        if (Phaser.Input.Keyboard.JustDown(keyLEFT)) {
+            game.difficulty = 1;
+            this.sound.play('sfx_select');
+            this.scene.start('playScene');
+        }
         if (Phaser.Input.Keyboard.JustDown(keyUP)) {
+            game.difficulty = 2;
+            this.sound.play('sfx_select');
+            this.scene.start('playScene');
+        }
+        if (Phaser.Input.Keyboard.JustDown(keyRIGHT)) {
+            game.difficulty = 3;
             this.sound.play('sfx_select');
             this.scene.start('playScene');
         }

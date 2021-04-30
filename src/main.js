@@ -30,5 +30,8 @@ let playerHeightOffset = 250;
 //initialize high score
 game.highScore = { points: 0, time: 0, distance: 0};
 
+//create a difficulty (1 easy, 2 medium, 3 hard)
+game.difficulty = 1;
+
 // reserve keyboard bindings
 let keyDOWN, keyUP, keyLEFT, keyRIGHT;
