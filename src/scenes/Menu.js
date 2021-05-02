@@ -36,9 +36,9 @@ class Menu extends Phaser.Scene {
             'too slow and the birds get you', menuConfig).setOrigin(0.5);
 
         let highScoreString = `HIGHSCORE: 
-        points: ${game.highScore.points}
-        distance: ${game.highScore.distance}
-        time: ${game.highScore.time}`;
+points: ${game.highScore.points}
+distance: ${game.highScore.distance}
+time: ${game.highScore.time}`;
 
         this.add.text(game.config.width / 2, game.config.height / 2 + borderUISize * 5,
             highScoreString, menuConfig).setOrigin(0.5);

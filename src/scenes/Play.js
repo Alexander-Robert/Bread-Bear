@@ -6,19 +6,33 @@ class Play extends Phaser.Scene {
     // init(), preload(), create(), update()
     preload() {
         //load images
-        this.load.image('background', './assets/background.png');
+        this.load.image('toplayer', './assets/toplayer.png');
+        this.load.image('background', './assets/sky.png');
+        this.load.image('transition', './assets/transition.png');
+
+        this.load.image('cloud1', './assets./cloud1.png');
+        this.load.image('cloud2', './assets./cloud2.png');
         this.load.image('breadbear', './assets/breadbear.png');
         this.load.image('bird', './assets/birds.png');
         this.load.image('butter', './assets/butter.png');
         this.load.image('avocado', './assets/avocado.png');
         this.load.image('jam', './assets/jam.png');
-        this.load.image('cloud1', './assets/cloud1.png');
-        this.load.image('cloud2', './assets/cloud2.png');
     }
     create() { //remember last things added in create are made first!!!!
         //add background
         this.background = this.add.tileSprite(0, 0,
             game.config.width, game.config.height, 'background').setOrigin(0, 0);
+        this.background.tint = 0x6CC3FD;
+        
+        
+
+        // add top background border
+        this.toplayer = this.add.sprite(0,  0, 'toplayer').setOrigin(0, 0);
+        this.toplayer.tint = 0x4972DC;
+        
+        // add clouds
+        this.cloud1 = new Cloud(this, 30, 200, 'cloud1', 0).setOrigin(0, 0);
+        this.cloud2 = new Cloud(this, 250, 300, 'cloud2', 0).setOrigin(0, 0);
 
         // define keys
         //restart key
@@ -49,34 +63,65 @@ class Play extends Phaser.Scene {
             distance: 0,
             scoreText: []
         };
-
-        // add clouds
-        this.cloud1 = this.add.sprite(30,  60, 'cloud1').setOrigin(0, 0);
-        this.cloud2 = this.add.sprite(120,  65, 'cloud2').setOrigin(0, 0);
-        this.cloud3 = this.add.sprite(300,  62, 'cloud1').setOrigin(0, 0);
-
-        //TODO: change scoreText to a map (allows sorting by key instead of remembering index and it's iterable unlike objects)  
+        //TODO: change score to a map with "points", "time", "distance" as keys and values is object of value and text 
+            //(allows sorting by key instead of remembering index and it's iterable unlike objects)  
         //add text boxes to scoreText array in the score object
-        //this.score.scoreText.push(this.add.text(50, 25, this.score.points, this.scoreConfig));
-        //this.score.scoreText.push(this.add.text(125, 25, this.score.time, this.scoreConfig));
-        //this.score.scoreText.push(this.add.text(200, 25, this.score.distance, this.scoreConfig));
+        this.score.scoreText.push(this.add.text(50, 25, this.score.points, this.scoreConfig));
+        this.score.scoreText.push(this.add.text(125, 25, this.score.time, this.scoreConfig));
+        this.score.scoreText.push(this.add.text(200, 25, this.score.distance, this.scoreConfig));
 
         //create player's character
         this.breadbear = new Breadbear(this, game.config.width / 2, game.config.height - playerHeightOffset,
             'breadbear');
         this.breadbear.setImmovable(true);
 
-        //TODO: implement spreads
         this.spreadGroup = this.add.group({
             runChildUpdate: true,    // make sure update runs on group children
         });
 
+        //timed loop to create new spreads
         this.spreadSpawnTimer = this.time.addEvent({
             delay: 2500,
-            callback: this.addSpread,
+            callback: () => {        
+                //create spreads
+                //TODO: more spreads than just butter (implement slow down for other spreads)
+                let spread = new Spread(this, 0, -32, 'butter', true); //bool arg: true = speed up, false = slow down
+                spread.create(); //have spread be initialized (positioned on random lane and given downward movement)
+                this.spreadGroup.add(spread);},
             callbackScope: this,
             loop: true
         });
+
+        //implement birds as a group
+        this.birdGroup = this.add.group({
+            runChildUpdate: true,   // make sure update runs on group children
+        });
+
+        this.birdGroup.add(new Bird(this,(game.config.width / 4), game.config.height - 32,'bird'));
+        this.birdGroup.add(new Bird(this,(game.config.width / 2), game.config.height - 32,'bird'));
+        this.birdGroup.add(new Bird(this,((3* game.config.width) / 4), game.config.height - 32,'bird'));
+
+        //timed loop to have the birds swoop up at bread bear
+        this.birdSwoopTimer = this.time.addEvent({
+            delay: 4000,
+            callback: this.birdSwoop,
+            callbackScope: this,
+            loop: true
+        });
+
+        //update time counter in score
+        //TODO: implement updating the distance in the callback function
+        this.updateScoreTimer = this.time.addEvent({
+            delay: 1000,
+            callback: () => {
+                this.score.time++;
+                this.score.scoreText[1].text = this.score.time;},
+            callbackScope: this,
+            loop: true
+        });
+
+        
+        
 
         this.birdGroup = this.add.group({
             runChildUpdate: true,
@@ -98,15 +143,29 @@ class Play extends Phaser.Scene {
         this.gameOverDisplayed = false;
     }
 
-    addSpread(){
-        //create spreads
-        //TODO: more spreads than just butter
-        let spread = new Spread(this, 0, -32, 'butter', true);
-        spread.create();
-        this.spreadGroup.add(spread);
-    }
-
     update() {
+
+        this.cloud1.update();
+        this.cloud2.update();
+
+
+        if (this.score.time == 10) {
+            this.background.tint = 0x4972DC;
+            this.toplayer.tint = 0x5067DF;
+            //this.transition = this.add.sprite(0,  0, 'transition').setOrigin(0, 0);
+        }
+
+        if (this.score.time == 20) {
+            this.background.tint = 0x5067DF;
+            this.toplayer.tint = 0x2847EC;
+        }
+        
+        if (this.score.time == 30) {
+            this.background.tint = 0x2847EC;
+            this.toplayer.tint = 0x5837E3;
+        }
+        
+
         //check key input for restart
         if (this.gameOver && Phaser.Input.Keyboard.JustDown(keyDOWN)) {
             this.scene.restart();
@@ -117,28 +176,24 @@ class Play extends Phaser.Scene {
 
         //update while game is going
         if (!this.gameOver) {
-            //scroll background
-            //TODO: remove this when tinting and clouds are implemented
-            this.background.tilePositionY -= scrollSpeed;
 
-            //TODO: remove this when actual game over is implemented
+            //TODO: remove this when testing for game is done
             //temp testing for game over logic
             if (Phaser.Input.Keyboard.JustDown(keyDOWN)) {
-                this.gameOver = true;
+                this.birdCollision();
             }
 
             //update bread bear
             this.breadbear.update();
             
-            this.physics.world.collide(this.breadbear, this.spreadGroup, this.spreadCollision, null, this);
-            this.physics.world.collide(this.breadbear, this.birdGroup, this.birdCollision, null, this);
-
-
-            //update game timer
-            //TODO: find out way to properly call totalElapsedSeconds from this scene
-            //this.score.time = this.time.totalElapsedSeconds();
-            //this.score.scoreText[2].text = Math.floor(this.score.time);
-
+            //check collisions with breadbear and spreads
+            this.physics.world.collide(this.spreadGroup, this.breadbear, (spread) => {
+                    this.spreadGroup.remove(spread);
+                    spread.destroy();
+                    this.breadbear.speedUp(750);
+                }, null, this);
+            //check collisions with breadbear and birds
+            this.physics.world.collide(this.birdGroup, this.breadbear, this.birdCollision, null, this);
         }
         else {
             if (!this.gameOverDisplayed) {
@@ -148,22 +203,31 @@ class Play extends Phaser.Scene {
         }
     }
 
-    spreadCollision() {
+    //stopping movement and timers before switching to gameOver conditions
+    birdCollision(bird) {
+        //stop all spreads on screen from moving
         let spreadArray = this.spreadGroup.getChildren();
-        let closest = 10000; //look at each object to see which is closest to bread bear 
-        //(i.e. which spread collided with bread bear)
-        let targetSpread;
-        for (let spread of spreadArray) {
-            let distance = Math.sqrt(Math.pow((this.breadbear.x - spread.x), 2) 
-                                   + Math.pow((this.breadbear.y - spread.y), 2));
-            if (closest > distance) {
-                closest = distance;
-                targetSpread = spread;
-            }
+        for (let spread of spreadArray){
+            spread.setAccelerationY(0);
+            spread.setVelocityY(0);
         }
-        this.spreadGroup.remove(targetSpread);
-        targetSpread.destroy();
-        this.breadbear.speedUp(750);
+        //stop the bird on screen from moving
+        bird.setAccelerationY(0);
+        bird.setVelocityY(0);
+        //remove the looping timers of the game's mechanics
+        this.spreadSpawnTimer.remove();
+        this.birdSwoopTimer.remove();
+        this.gameOver = true;        
+    }
+
+    //have a random bird fly up and back down again
+    birdSwoop(){
+        //select a random bird
+        let birdArray = this.birdGroup.getChildren();
+        let bird = birdArray[Phaser.Math.Between(0,birdArray.length-1)];
+        bird.flyUp();
+        //birds will swoop every 4-7 seconds
+        this.birdSwoopTimer.delay = Phaser.Math.Between(4000, 7000);
     }
 
 
@@ -210,9 +274,9 @@ class Play extends Phaser.Scene {
         }
         this.add.text(game.config.width / 2, game.config.height / 2 + 24,
             highScoreString + `
-            points: ${game.highScore.points} 
-            distance: ${game.highScore.distance} 
-            time: ${game.highScore.time}`,
+points: ${game.highScore.points} 
+distance: ${game.highScore.distance} 
+time: ${game.highScore.time}`,
             this.scoreConfig).setOrigin(0.5);
     }
 }
