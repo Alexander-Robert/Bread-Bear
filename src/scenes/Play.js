@@ -9,9 +9,12 @@ class Play extends Phaser.Scene {
         this.load.image('toplayer', './assets/toplayer.png');
         this.load.image('background', './assets/sky.png');
         this.load.image('transition', './assets/transition.png');
-
         this.load.image('cloud1', './assets./cloud1.png');
         this.load.image('cloud2', './assets./cloud2.png');
+
+        this.load.image('star1', './assets./star1.png');
+        this.load.image('star2', './assets./star2.png');
+
         this.load.image('breadbear', './assets/breadbear.png');
         this.load.image('bird', './assets/birds.png');
         this.load.image('butter', './assets/butter.png');
@@ -23,8 +26,7 @@ class Play extends Phaser.Scene {
         this.background = this.add.tileSprite(0, 0,
             game.config.width, game.config.height, 'background').setOrigin(0, 0);
         this.background.tint = 0x6CC3FD;
-        
-        
+
 
         // add top background border
         this.toplayer = this.add.sprite(0,  0, 'toplayer').setOrigin(0, 0);
@@ -120,8 +122,6 @@ class Play extends Phaser.Scene {
             loop: true
         });
 
-        
-        
 
         this.birdGroup = this.add.group({
             runChildUpdate: true,
@@ -143,16 +143,17 @@ class Play extends Phaser.Scene {
         this.gameOverDisplayed = false;
     }
 
+    
+
     update() {
 
         this.cloud1.update();
         this.cloud2.update();
 
-
+        //background color change
         if (this.score.time == 10) {
             this.background.tint = 0x4972DC;
-            this.toplayer.tint = 0x5067DF;
-            //this.transition = this.add.sprite(0,  0, 'transition').setOrigin(0, 0);
+            this.toplayer.tint = 0x5067DF;   
         }
 
         if (this.score.time == 20) {
@@ -162,7 +163,24 @@ class Play extends Phaser.Scene {
         
         if (this.score.time == 30) {
             this.background.tint = 0x2847EC;
-            this.toplayer.tint = 0x5837E3;
+            this.toplayer.tint = 0x6217e3;
+        }
+
+        if (this.score.time == 40) {
+            this.background.tint = 0x6217e3;
+            this.toplayer.tint = 0x270578;
+        }
+
+        if (this.score.time == 50) {
+            this.background.tint = 0x270578;
+            this.toplayer.tint = 0x270578;
+            this.cloud1.destroy();
+            this.cloud2.destroy();
+            this.star1 = new Cloud(this, 80, 200, 'star1', 0).setOrigin(0, 0); 
+            this.star2 = new Cloud(this, 300, 300, 'star2', 0).setOrigin(0, 0);   
+            this.star1.update();
+            this.star2.update();
+
         }
         
 
