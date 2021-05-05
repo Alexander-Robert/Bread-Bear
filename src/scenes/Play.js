@@ -171,35 +171,37 @@ class Play extends Phaser.Scene {
         this.cloud2.update();
 
         //background color change
-        if (this.score.time == 10) {
+        if (this.score.time == 1) {
             this.background.tint = 0x4972DC;
             this.toplayer.tint = 0x5067DF;   
         }
 
-        if (this.score.time == 20) {
+        if (this.score.time == 2) {
             this.background.tint = 0x5067DF;
             this.toplayer.tint = 0x2847EC;
         }
         
-        if (this.score.time == 30) {
+        if (this.score.time == 3) {
             this.background.tint = 0x2847EC;
             this.toplayer.tint = 0x6217e3;
         }
 
-        if (this.score.time == 40) {
+        if (this.score.time == 4) {
             this.background.tint = 0x6217e3;
             this.toplayer.tint = 0x270578;
         }
 
-        if (this.score.time == 50) {
+        if (this.score.time == 5) {
             this.background.tint = 0x270578;
             this.toplayer.tint = 0x270578;
-            this.cloud1.destroy();
-            this.cloud2.destroy();
-            this.star1 = new Cloud(this, 80, 200, 'star1', 0).setOrigin(0, 0); 
-            this.star2 = new Cloud(this, 300, 300, 'star2', 0).setOrigin(0, 0);   
-            this.star1.update();
-            this.star2.update();
+            console.log(this.cloud1.texture);
+            this.cloud1.texture = 'star1';
+            this.cloud2.texture = 'star2';
+            console.log(this.cloud1.texture);
+            //this.star1 = new Cloud(this, 80, 200, 'star1', 0).setOrigin(0, 0); 
+            //this.star2 = new Cloud(this, 300, 300, 'star2', 0).setOrigin(0, 0);   
+           // this.star1.update();
+            //this.star2.update();
         }
         
 
