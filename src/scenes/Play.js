@@ -2,7 +2,7 @@ class Play extends Phaser.Scene {
     constructor() {
         super("playScene");
     }
-
+    // merging test
     // init(), preload(), create(), update()
     preload() {
         //load images
