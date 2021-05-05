@@ -6,11 +6,19 @@ class Play extends Phaser.Scene {
     // init(), preload(), create(), update()
     preload() {
         //load images
-        this.load.image('background', './assets/background.png');
-        this.load.image('breadbear', './assets/breadbear2.png');
-        this.load.image('butter', './assets/butter2.png');
-        this.load.image('avocado', './assets/avocado2.png');
-        this.load.image('jam', './assets/jam2.png');
+        this.load.image('toplayer', './assets/toplayer.png');
+        this.load.image('background', './assets/sky.png');
+        this.load.image('transition', './assets/transition.png');
+        this.load.image('cloud1', './assets./cloud1.png');
+        this.load.image('cloud2', './assets./cloud2.png');
+        this.load.image('star1', './assets./star1.png');
+        this.load.image('star2', './assets./star2.png');
+        this.load.image('breadbear', './assets/breadbear.png');
+        this.load.image('bird', './assets/birds.png');
+        this.load.image('butter', './assets/butter.png');
+        this.load.image('avocado', './assets/avocado.png');
+        this.load.image('jam', './assets/jam.png');
+
         //load atlas
         this.load.atlas('bird', './assets/birdwingflap.png', 
         './assets/birdwingflap.json', Phaser.Loader.TEXTURE_ATLAS_JSON_HASH);
@@ -19,6 +27,16 @@ class Play extends Phaser.Scene {
         //add background
         this.background = this.add.tileSprite(0, 0,
             game.config.width, game.config.height, 'background').setOrigin(0, 0);
+        this.background.tint = 0x6CC3FD;
+
+
+        // add top background border
+        this.toplayer = this.add.sprite(0,  0, 'toplayer').setOrigin(0, 0);
+        this.toplayer.tint = 0x4972DC;
+        
+        // add clouds
+        this.cloud1 = new Cloud(this, 30, 200, 'cloud1', 0).setOrigin(0, 0);
+        this.cloud2 = new Cloud(this, 250, 300, 'cloud2', 0).setOrigin(0, 0);
 
         //define keys
         //restart key
@@ -145,7 +163,46 @@ class Play extends Phaser.Scene {
         this.gameOverDisplayed = false;
     }
 
+    
+
     update() {
+
+        this.cloud1.update();
+        this.cloud2.update();
+
+        //background color change
+        if (this.score.time == 10) {
+            this.background.tint = 0x4972DC;
+            this.toplayer.tint = 0x5067DF;   
+        }
+
+        if (this.score.time == 20) {
+            this.background.tint = 0x5067DF;
+            this.toplayer.tint = 0x2847EC;
+        }
+        
+        if (this.score.time == 30) {
+            this.background.tint = 0x2847EC;
+            this.toplayer.tint = 0x6217e3;
+        }
+
+        if (this.score.time == 40) {
+            this.background.tint = 0x6217e3;
+            this.toplayer.tint = 0x270578;
+        }
+
+        if (this.score.time == 50) {
+            this.background.tint = 0x270578;
+            this.toplayer.tint = 0x270578;
+            this.cloud1.destroy();
+            this.cloud2.destroy();
+            this.star1 = new Cloud(this, 80, 200, 'star1', 0).setOrigin(0, 0); 
+            this.star2 = new Cloud(this, 300, 300, 'star2', 0).setOrigin(0, 0);   
+            this.star1.update();
+            this.star2.update();
+        }
+        
+
         //check key input for restart
         if (this.gameOver && Phaser.Input.Keyboard.JustDown(keyDOWN)) {
             this.scene.restart();
