@@ -36,14 +36,7 @@ class Breadbear extends Phaser.Physics.Arcade.Sprite {
         }
     }
 
-        //TODO: figure out if internal speedUp amount should be handled here or in Play.js
-    speedUp(duration) {
+    speedUp() {
         this.setVelocityY(-this.MAX_FALLING_VELOCITY * 2);
-        
-        //speedUp player (increase background scroll speed, give player acceleration upwards for x amount of time)
-            //x amount of time based on player's y position (higher up, less time to move up)
-
-        //check bounds to make sure player does not go above screen.
-        //if player is at some max y height, each speed up boost pushes them up quickly and back down to max y height
     }
 }

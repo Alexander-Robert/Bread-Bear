@@ -21,9 +21,13 @@ class Menu extends Phaser.Scene {
         this.load.image('avocado', './assets/base-sprites/avocado.png');
         this.load.image('jam', './assets/base-sprites/jam.png');
 
-        //load atlas
+        //load all atlas
         this.load.atlas('bird', './assets/animation-files/birdwingflap.png',
             './assets/animation-files/birdwingflap.json', Phaser.Loader.TEXTURE_ATLAS_JSON_HASH);
+        this.load.atlas('spread butter', './assets/animation-files/spread_butter.png',
+            './assets/animation-files/spread_butter.json', Phaser.Loader.TEXTURE_ATLAS_JSON_HASH);
+        this.load.atlas('warning', './assets/animation-files/warning.png',
+            './assets/animation-files/warning.json', Phaser.Loader.TEXTURE_ATLAS_JSON_HASH);
     }
     create() {
 

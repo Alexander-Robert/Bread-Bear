@@ -5,14 +5,14 @@ class Play extends Phaser.Scene {
 
     create() { //remember last things added in create are made first!!!!
         // add top background border
-        this.toplayer = this.add.sprite(0,  0, 'toplayer').setOrigin(0, 0);
+        this.toplayer = this.add.sprite(0, 0, 'toplayer').setOrigin(0, 0);
         this.toplayer.tint = 0x4972DC;
-        
+
         //add background
         this.background = this.add.tileSprite(0, 0,
             game.config.width, game.config.height, 'background').setOrigin(0, 0);
         this.background.tint = 0x6CC3FD;
-        
+
         // add clouds
         this.cloud1 = new Cloud(this, 30, 200, 'cloud1', 0).setOrigin(0, 0);
         this.cloud2 = new Cloud(this, 250, 300, 'cloud2', 0).setOrigin(0, 0);
@@ -30,8 +30,7 @@ class Play extends Phaser.Scene {
         this.scoreConfig = {
             fontFamily: 'Courier',
             fontSize: '28px',
-            backgroundColor: '#F3B141',
-            color: '#843605',
+            color: '#FFFFFF',
             align: 'center',
             padding: {
                 top: 5,
@@ -39,19 +38,18 @@ class Play extends Phaser.Scene {
             },
             wordWrap: { width: game.config.width, useAdvancedWrap: true }
         }
-        
-        //add score data structure (stores the text boxes in score object)
+
+        //add score data structure
         this.score = {
             points: 0,
             time: 0,
             distance: 0
         };
-        //TODO: change score to a map with "points", "time", "distance" as keys and values is object of value and text 
-            //(allows sorting by key instead of remembering index and it's iterable unlike objects)  
+
         //add text boxes to display values on screen
         this.pointsText = this.add.text(50, 25, this.score.points, this.scoreConfig);
-        this.timeText = this.add.text(125, 25, this.score.time, this.scoreConfig);
-        this.distanceText = this.add.text(200, 25, this.score.distance, this.scoreConfig);
+        this.distanceText = this.add.text(game.config.width / 2, 25, this.score.distance, this.scoreConfig);
+        this.timeText = this.add.text(game.config.width - 75, 25, this.score.time, this.scoreConfig);
 
         //create player's character
         this.breadbear = new Breadbear(this, game.config.width / 2, game.config.height - playerHeightOffset,
@@ -67,15 +65,14 @@ class Play extends Phaser.Scene {
             callbackScope: this,
             loop: false
         });
-        
 
         //create a physics body with no texture (used to have birds fall back to position after swooping)
-        this.phantomBox = this.physics.add.sprite(game.config.width/2,
-            game.config.height - 25).setOrigin(0,0); //creates at said position
+        this.phantomBox = this.physics.add.sprite(game.config.width / 2,
+            game.config.height - 25).setOrigin(0, 0); //creates at said position
         this.phantomBox.body.setSize(game.config.width + 100, 20); //makes it a rectangle of said dimensions
         this.phantomBox.setImmovable(true); //collision doesn't move this object
         this.phantomBox.body.setAllowGravity(false); //gravity should not affect this object
-        
+
         //implement spreads as a group
         this.spreadGroup = this.add.group({
             runChildUpdate: true,    // make sure update runs on group children
@@ -85,7 +82,7 @@ class Play extends Phaser.Scene {
         this.spreadSpawnTimer = this.time.addEvent({
             delay: 2500,
             startAt: 1000, //starts spawning objects 1 second after starting the game
-            callback: () => {        
+            callback: () => {
                 //create spreads
                 //TODO: more spreads than just butter (implement slow down for other spreads)
                 let spread = new Spread(this, 0, -32, 'butter', true); //bool arg: true = speed up, false = slow down
@@ -96,24 +93,14 @@ class Play extends Phaser.Scene {
             loop: true
         });
 
-        this.anims.create({
-            key: 'birdflap',
-            repeat: -1,
-            yoyo: true, //yoyo makes the animation play back and forth (start -> finish, finish -> start)
-            frames: this.anims.generateFrameNames('bird', {
-                first: 0,
-                end: 3,
-            }),
-            duration: 10,
-            frameRate: 10,
-        });
+        this.createAnimations(); //function that handles all anims.create for every atlas
 
         //implement birds as a group
         this.birdGroup = this.add.group({
             runChildUpdate: true,   // make sure update runs on group children
         });
-        for(let i =0; i != 10; i++) {
-            let bird = new Bird(this,16 + (i * 50), game.config.height - 33,'bird');
+        for (let i = 0; i != 10; i++) {
+            let bird = new Bird(this, 16 + (i * 50), game.config.height - 33, 'bird');
             bird.anims.play('birdflap');
             this.birdGroup.add(bird);
         }
@@ -132,7 +119,8 @@ class Play extends Phaser.Scene {
             delay: 1000,
             callback: () => {
                 this.score.time++;
-                this.timeText.text = this.score.time;},
+                this.timeText.text = this.score.time;
+            },
             callbackScope: this,
             loop: true
         });
@@ -142,7 +130,7 @@ class Play extends Phaser.Scene {
         this.gameOverDisplayed = false;
     }
 
-    
+
 
     update() {
 
@@ -152,14 +140,14 @@ class Play extends Phaser.Scene {
         //background color change
         if (this.score.time == 10) {
             this.background.tint = 0x4972DC;
-            this.toplayer.tint = 0x5067DF;   
+            this.toplayer.tint = 0x5067DF;
         }
 
         if (this.score.time == 20) {
             this.background.tint = 0x5067DF;
             this.toplayer.tint = 0x2847EC;
         }
-        
+
         if (this.score.time == 30) {
             this.background.tint = 0x2847EC;
             this.toplayer.tint = 0x6217e3;
@@ -176,7 +164,7 @@ class Play extends Phaser.Scene {
             this.cloud1.setTexture('star1');
             this.cloud2.setTexture('star2');
         }
-        
+
 
         //check key input for restart
         if (this.gameOver && Phaser.Input.Keyboard.JustDown(keyDOWN)) {
@@ -203,13 +191,19 @@ class Play extends Phaser.Scene {
             //if bread bear has fallen off screen, game over
             if (this.breadbear.y > game.config.height + this.breadbear.height)
                 this.stopGame();
-            
+
             //check collisions with breadbear and spreads
             this.physics.world.collide(this.spreadGroup, this.breadbear, (spread) => {
-                    this.spreadGroup.remove(spread);
-                    spread.destroy();
-                    this.breadbear.speedUp(750);
-                }, null, this);
+                this.spreadGroup.remove(spread);
+                spread.destroy();
+                this.breadbear.speedUp();
+                //play the ear wiggle animation
+                this.breadbear.setTexture('spread butter');
+                this.breadbear.anims.play('smear butter');
+                this.breadbear.on('animationcomplete', () => {    // callback after anim completes
+                    this.breadbear.setTexture('breadbear'); //reset the texture
+                });
+            }, null, this);
             //check collisions with breadbear and birds
             this.physics.world.collide(this.birdGroup, this.breadbear, (bird) => {
                 bird.setAccelerationY(0);
@@ -232,19 +226,33 @@ class Play extends Phaser.Scene {
             if (randomBird.y != game.config.height - 35) { //make sure the bird we're selecting isn't already swooping
                 randomBird = birdArray[Phaser.Math.Between(0, birdArray.length - 1)];
             }
-            randomBird.body.setVelocityY(-1 * Phaser.Math.Between(minVelocity, maxVelocity));
+            let warning = this.add.sprite(bird.x, bird.y - bird.height, 'warning');
+                    //spawn a warning above the bird
+                    warning.anims.play('warning anim');
+                    //after the warning is done, have the bird fly up
+                    warning.on('animationcomplete', () => {
+                        warning.destroy();
+                        randomBird.body.setVelocityY(-1 * Phaser.Math.Between(minVelocity, maxVelocity));
+                    });
         }
         let mediumMode = () => { //have bird's within an x range of bread bear fly up and back down again
             for (let bird of birdArray) {
                 let xDist = Math.abs(bird.x - this.breadbear.x);
                 if (xDist < 100) {
-                    //velocity is amplified based off of how far away the birds are from bread bear
-                    let velocity = (-1 * (100 + (Phaser.Math.Distance.BetweenPoints(bird, this.breadbear)) / 5));
-                    //if the birds are already swooping up at bread bear
-                    if (bird.y < game.config.height - 50) // && bird.body.velocity > 0)
-                        bird.body.setVelocityY(velocity / 1.5);
-                    else
-                        bird.body.setVelocityY(velocity);
+                    //spawn a warning above the bird
+                    let warning = this.add.sprite(bird.x, bird.y - bird.height, 'warning');
+                    warning.anims.play('warning anim');
+                    //after the warning is done, have those birds fly up
+                    warning.on('animationcomplete', () => {
+                        warning.destroy();
+                        //velocity is amplified based off of how far away the birds are from bread bear
+                        let velocity = (-1 * (100 + (Phaser.Math.Distance.BetweenPoints(bird, this.breadbear)) / 5));
+                        //if the birds are already swooping up at bread bear
+                        if (bird.y < game.config.height - 50) // && bird.body.velocity > 0)
+                            bird.body.setVelocityY(velocity / 1.5);
+                        else
+                            bird.body.setVelocityY(velocity);
+                    });
                 }
             }
         }
@@ -252,13 +260,13 @@ class Play extends Phaser.Scene {
             case 1:
                 easyMode(100, game.config.height / 3); //passing the min and max velocity range the birds can fly at
                 break;
-            case 2: 
+            case 2:
                 mediumMode();
                 break;
             case 3: //case 3 (hard mode) has the same functionality of both case 1 and 2
                 mediumMode();
                 //easy mode called after medium mode so that the random velocity bird is not part of the group swooping up
-                easyMode(game.config.height / 4, game.config.height / 2.5); 
+                easyMode(game.config.height / 4, game.config.height / 2.5);
                 break;
             default:
                 console.log(`error, difficulty level ${game.difficulty} doesn't exist`)
@@ -286,9 +294,9 @@ class Play extends Phaser.Scene {
 
     gameOverText() {
         //display game over text
-        this.add.text(game.config.width / 2, game.config.height / 2 - 64, 'GAME OVER',
+        this.add.text(game.config.width / 2, game.config.height / 2.5 - 64, 'GAME OVER',
             this.scoreConfig).setOrigin(0.5);
-        this.add.text(game.config.width / 2, game.config.height / 2 + 128, 'Press ↓ to Restart or ↑ for Menu',
+        this.add.text(game.config.width / 2, game.config.height / 2.5 + 128, '↓ to Restart or ↑ for Menu',
             this.scoreConfig).setOrigin(0.5);
 
         let highScoreString = 'HIGHSCORE: ';
@@ -299,11 +307,46 @@ class Play extends Phaser.Scene {
             game.highScore.time = this.score.time;
             highScoreString = 'NEW ' + highScoreString;
         }
-        this.add.text(game.config.width / 2, game.config.height / 2 + 24,
+        this.add.text(game.config.width / 2, game.config.height / 2.5 + 24,
             highScoreString + `
 points: ${game.highScore.points} 
 distance: ${game.highScore.distance} 
 time: ${game.highScore.time}`,
             this.scoreConfig).setOrigin(0.5);
+    }
+
+    createAnimations() {
+        //bird flapping wings
+        this.anims.create({
+            key: 'birdflap',
+            repeat: -1,
+            yoyo: true, //yoyo makes the animation play back and forth (start -> finish, finish -> start)
+            frames: this.anims.generateFrameNames('bird', {
+                first: 0,
+                end: 3,
+            }),
+            duration: 10,
+            frameRate: 10,
+        });
+
+        //bread bear wiggles his ears when eating a good spread
+        this.anims.create({
+            key: 'smear butter',
+            frames: this.anims.generateFrameNames('spread butter', {
+                first: 0,
+                end: 3,
+            }),
+            frameRate: 5,
+        });
+
+        //warning symbols appear above birds about to fly up
+        this.anims.create({
+            key: 'warning anim',
+            frames: this.anims.generateFrameNames('warning', {
+                first: 0,
+                end: 3,
+            }),
+            frameRate: 10,
+        });
     }
 }
