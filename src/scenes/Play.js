@@ -11,7 +11,6 @@ class Play extends Phaser.Scene {
         this.load.image('butter', './assets/butter2.png');
         this.load.image('avocado', './assets/avocado2.png');
         this.load.image('jam', './assets/jam2.png');
-        //this.load.image('bird', './assets/bird2.png');
         //load atlas
         this.load.atlas('bird', './assets/birdwingflap.png', 
         './assets/birdwingflap.json', Phaser.Loader.TEXTURE_ATLAS_JSON_HASH);
@@ -21,7 +20,7 @@ class Play extends Phaser.Scene {
         this.background = this.add.tileSprite(0, 0,
             game.config.width, game.config.height, 'background').setOrigin(0, 0);
 
-        // define keys
+        //define keys
         //restart key
         keyDOWN = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN);
         //start key
@@ -94,7 +93,8 @@ class Play extends Phaser.Scene {
                 //TODO: more spreads than just butter (implement slow down for other spreads)
                 let spread = new Spread(this, 0, -32, 'butter', true); //bool arg: true = speed up, false = slow down
                 spread.create(); //have spread be initialized (positioned on random lane and given downward movement)
-                this.spreadGroup.add(spread);},
+                this.spreadGroup.add(spread);
+            },
             callbackScope: this,
             loop: true
         });
@@ -104,12 +104,11 @@ class Play extends Phaser.Scene {
             repeat: -1,
             yoyo: true, //yoyo makes the animation play back and forth (start -> finish, finish -> start)
             frames: this.anims.generateFrameNames('bird', {
-                //start: 0,
+                first: 0,
                 end: 3,
-                first: 0
             }),
             duration: 10,
-            frameRate: 10
+            frameRate: 10,
         });
 
         //implement birds as a group
@@ -137,21 +136,6 @@ class Play extends Phaser.Scene {
             callback: () => {
                 this.score.time++;
                 this.timeText.text = this.score.time;},
-            callbackScope: this,
-            loop: true
-        });
-
-        this.birdGroup = this.add.group({
-            runChildUpdate: true,
-        });
-
-        this.birdGroup.add(new Bird(this,(game.config.width / 4), game.config.height - 32,'bird'));
-        this.birdGroup.add(new Bird(this,(game.config.width / 2), game.config.height - 32,'bird'));
-        this.birdGroup.add(new Bird(this,((3* game.config.width) / 4), game.config.height - 32,'bird'));
-
-        this.birdSwoopTimer = this.time.addEvent({
-            delay: 4000,
-            callback: this.birdSwoop,
             callbackScope: this,
             loop: true
         });
@@ -259,6 +243,7 @@ class Play extends Phaser.Scene {
 
     //stopping movement and timers before switching to the game over text screen
     stopGame() {
+        //TODO: disable gravity (global gravity tied to game.console.physics.arcade.gravity.y)
         //stop all spreads on screen from moving
         let spreadArray = this.spreadGroup.getChildren();
         for (let spread of spreadArray) {
@@ -270,33 +255,6 @@ class Play extends Phaser.Scene {
         this.birdSwoopTimer.remove();
         this.updateScoreTimer.remove();
         this.gameOver = true;
-    }
-
-
-    birdCollision() {
-        let spreadArray = this.spreadGroup.getChildren();
-        for (let spread of spreadArray){
-            spread.setAccelerationY(0);
-            spread.setVelocityY(0);
-        }
-        let birdArray = this.birdGroup.getChildren();
-        for (let bird of birdArray){
-            bird.setAccelerationY(0);
-            bird.setVelocityY(0);
-        }
-        this.spreadSpawnTimer.remove();
-        this.birdSwoopTimer.remove();
-        this.gameOver = true;        
-    }
-
-    //have a random bird fly up and back down again
-    birdSwoop(){
-        //select a random bird
-        let birdArray = this.birdGroup.getChildren();
-        let bird = birdArray[Phaser.Math.Between(0,birdArray.length-1)];
-        bird.flyUp();
-        //birds will swoop every 4-7 seconds
-        this.birdSwoopTimer.delay = Phaser.Math.Between(4000, 7000);
     }
 
     gameOverText() {
