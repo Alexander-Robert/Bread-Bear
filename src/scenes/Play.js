@@ -128,12 +128,21 @@ class Play extends Phaser.Scene {
             loop: true
         });
 
+
+        this.updateDistanceTimer = this.time.addEvent({
+            delay: 100,
+            callback: () => {
+                this.score.distance++;
+                this.distanceText.text = this.score.distance;
+            },
+            callbackScope: this,
+            loop: true
+        });
+
         //GAME OVER flag
         this.gameOver = false;
         this.gameOverDisplayed = false;
     }
-
-
 
     update() {
 
@@ -191,6 +200,8 @@ class Play extends Phaser.Scene {
             //update bread bear
             this.breadbear.update();
 
+            if(this.breadbear.body.velocity.y < 0 ) //if bread bear is being boosted
+                this.score.distance++;
             //if bread bear has fallen off screen, game over
             if (this.breadbear.y > game.config.height + this.breadbear.height)
                 this.stopGame();
@@ -201,7 +212,10 @@ class Play extends Phaser.Scene {
                 spread.destroy();
                 this.breadbear.speedUp();
                 this.sound.play('sfx_smear');
-                //play the ear wiggle animation
+                //add points to the game
+                this.score.points += 100 + Math.floor(this.score.distance / 10); //TODO: increase points based on combos
+                this.pointsText.text = this.score.points;
+                //play the spread animation animation
                 this.breadbear.setTexture('spread butter');
                 this.breadbear.anims.play('smear butter');
                 this.breadbear.on('animationcomplete', () => {    // callback after anim completes
@@ -293,6 +307,7 @@ class Play extends Phaser.Scene {
         this.spreadSpawnTimer.remove();
         this.birdSwoopTimer.remove();
         this.updateScoreTimer.remove();
+        this.updateDistanceTimer.remove();
         this.gameOver = true;
     }
 
