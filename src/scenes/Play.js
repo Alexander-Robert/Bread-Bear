@@ -108,7 +108,10 @@ class Play extends Phaser.Scene {
         //timed loop to have the birds swoop up at bread bear
         this.birdSwoopTimer = this.time.addEvent({
             delay: 4000,
-            callback: this.birdSwoop,
+            callback: () => {
+                this.sound.play('sfx_caw');
+                this.birdSwoop();
+            },
             callbackScope: this,
             loop: true
         });
@@ -197,6 +200,7 @@ class Play extends Phaser.Scene {
                 this.spreadGroup.remove(spread);
                 spread.destroy();
                 this.breadbear.speedUp();
+                this.sound.play('sfx_smear');
                 //play the ear wiggle animation
                 this.breadbear.setTexture('spread butter');
                 this.breadbear.anims.play('smear butter');
@@ -227,13 +231,13 @@ class Play extends Phaser.Scene {
                 randomBird = birdArray[Phaser.Math.Between(0, birdArray.length - 1)];
             }
             let warning = this.add.sprite(bird.x, bird.y - bird.height, 'warning');
-                    //spawn a warning above the bird
-                    warning.anims.play('warning anim');
-                    //after the warning is done, have the bird fly up
-                    warning.on('animationcomplete', () => {
-                        warning.destroy();
-                        randomBird.body.setVelocityY(-1 * Phaser.Math.Between(minVelocity, maxVelocity));
-                    });
+            //spawn a warning above the bird
+            warning.anims.play('warning anim');
+            //after the warning is done, have the bird fly up
+            warning.on('animationcomplete', () => {
+                warning.destroy();
+                randomBird.body.setVelocityY(-1 * Phaser.Math.Between(minVelocity, maxVelocity));
+            });
         }
         let mediumMode = () => { //have bird's within an x range of bread bear fly up and back down again
             for (let bird of birdArray) {
