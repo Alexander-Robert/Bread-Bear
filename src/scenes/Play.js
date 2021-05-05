@@ -2,36 +2,16 @@ class Play extends Phaser.Scene {
     constructor() {
         super("playScene");
     }
-    // merging test
-    // init(), preload(), create(), update()
-    preload() {
-        //load images
-        this.load.image('toplayer', './assets/toplayer.png');
-        this.load.image('background', './assets/sky.png');
-        this.load.image('transition', './assets/transition.png');
-        this.load.image('cloud1', './assets/cloud1.png');
-        this.load.image('cloud2', './assets/cloud2.png');
-        this.load.image('star1', './assets/star1.png');
-        this.load.image('star2', './assets/star2.png');
-        this.load.image('breadbear', './assets/breadbear2.png');
-        this.load.image('butter', './assets/butter2.png');
-        this.load.image('avocado', './assets/avocado2.png');
-        this.load.image('jam', './assets/jam2.png');
 
-        //load atlas
-        this.load.atlas('bird', './assets/birdwingflap.png', 
-        './assets/birdwingflap.json', Phaser.Loader.TEXTURE_ATLAS_JSON_HASH);
-    }
     create() { //remember last things added in create are made first!!!!
+        // add top background border
+        this.toplayer = this.add.sprite(0,  0, 'toplayer').setOrigin(0, 0);
+        this.toplayer.tint = 0x4972DC;
+        
         //add background
         this.background = this.add.tileSprite(0, 0,
             game.config.width, game.config.height, 'background').setOrigin(0, 0);
         this.background.tint = 0x6CC3FD;
-
-
-        // add top background border
-        this.toplayer = this.add.sprite(0,  0, 'toplayer').setOrigin(0, 0);
-        this.toplayer.tint = 0x4972DC;
         
         // add clouds
         this.cloud1 = new Cloud(this, 30, 200, 'cloud1', 0).setOrigin(0, 0);
@@ -216,12 +196,6 @@ class Play extends Phaser.Scene {
             //TODO: replace this with tinting and clouds. Tie scrollspeed to clouds falling speed instead.
             //scrollSpeed = 4 - this.breadbear.body.velocity.y /10;
             //this.background.tilePositionY -= scrollSpeed;
-
-            //TODO: remove this when testing for game is done
-            //temp testing for game over logic 
-            if (Phaser.Input.Keyboard.JustDown(keyDOWN)) {
-                this.stopGame();
-            }
 
             //update bread bear
             this.breadbear.update();
