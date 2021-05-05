@@ -7,11 +7,14 @@ class Play extends Phaser.Scene {
     preload() {
         //load images
         this.load.image('background', './assets/background.png');
-        this.load.image('breadbear', './assets/breadbear.png');
-        this.load.image('bird', './assets/birds.png');
-        this.load.image('butter', './assets/butter.png');
-        this.load.image('avocado', './assets/avocado.png');
-        this.load.image('jam', './assets/jam.png');
+        this.load.image('breadbear', './assets/breadbear2.png');
+        this.load.image('butter', './assets/butter2.png');
+        this.load.image('avocado', './assets/avocado2.png');
+        this.load.image('jam', './assets/jam2.png');
+        //this.load.image('bird', './assets/bird2.png');
+        //load atlas
+        this.load.atlas('bird', './assets/birdwingflap.png', 
+        './assets/birdwingflap.json', Phaser.Loader.TEXTURE_ATLAS_JSON_HASH);
     }
     create() { //remember last things added in create are made first!!!!
         //add background
@@ -96,12 +99,27 @@ class Play extends Phaser.Scene {
             loop: true
         });
 
+        this.anims.create({
+            key: 'birdflap',
+            repeat: -1,
+            yoyo: true, //yoyo makes the animation play back and forth (start -> finish, finish -> start)
+            frames: this.anims.generateFrameNames('bird', {
+                //start: 0,
+                end: 3,
+                first: 0
+            }),
+            duration: 10,
+            frameRate: 10
+        });
+
         //implement birds as a group
         this.birdGroup = this.add.group({
             runChildUpdate: true,   // make sure update runs on group children
         });
         for(let i =0; i != 10; i++) {
-            this.birdGroup.add(new Bird(this,16 + (i * 50), game.config.height - 33,'bird'));
+            let bird = new Bird(this,16 + (i * 50), game.config.height - 33,'bird');
+            bird.anims.play('birdflap');
+            this.birdGroup.add(bird);
         }
 
         //timed loop to have the birds swoop up at bread bear
@@ -159,11 +177,12 @@ class Play extends Phaser.Scene {
         //update while game is going
         if (!this.gameOver) {
             //scroll background
-            //TODO: remove this when tinting and clouds are implemented
+            //TODO: replace this with tinting and clouds. Tie scrollspeed to clouds falling speed instead.
+            scrollSpeed = 4 - this.breadbear.body.velocity.y /10;
             this.background.tilePositionY -= scrollSpeed;
 
             //TODO: remove this when testing for game is done
-            //temp testing for game over logic
+            //temp testing for game over logic 
             if (Phaser.Input.Keyboard.JustDown(keyDOWN)) {
                 this.stopGame();
             }
@@ -212,10 +231,7 @@ class Play extends Phaser.Scene {
                     //velocity is amplified based off of how far away the birds are from bread bear
                     let velocity = (-1 * (100 + (Phaser.Math.Distance.BetweenPoints(bird, this.breadbear)) / 5));
                     if (bird.y != game.config.height - 35) //if the birds are already swooping up at bread bear
-                    {
-                        console.log(bird.y);
                         bird.body.setVelocityY(velocity / 1.5); //if the bird is already moving towards bread bear
-                    }
                     else
                         bird.body.setVelocityY(velocity);
                 }
