@@ -11,10 +11,8 @@ class Play extends Phaser.Scene {
         this.load.image('transition', './assets/transition.png');
         this.load.image('cloud1', './assets./cloud1.png');
         this.load.image('cloud2', './assets./cloud2.png');
-
         this.load.image('star1', './assets./star1.png');
         this.load.image('star2', './assets./star2.png');
-
         this.load.image('breadbear', './assets/breadbear.png');
         this.load.image('bird', './assets/birds.png');
         this.load.image('butter', './assets/butter.png');
