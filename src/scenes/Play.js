@@ -13,10 +13,10 @@ class Play extends Phaser.Scene {
         this.load.image('cloud2', './assets./cloud2.png');
         this.load.image('star1', './assets./star1.png');
         this.load.image('star2', './assets./star2.png');
-        this.load.image('breadbear', './assets/breadbear.png');
-        this.load.image('butter', './assets/butter.png');
-        this.load.image('avocado', './assets/avocado.png');
-        this.load.image('jam', './assets/jam.png');
+        this.load.image('breadbear', './assets/breadbear2.png');
+        this.load.image('butter', './assets/butter2.png');
+        this.load.image('avocado', './assets/avocado2.png');
+        this.load.image('jam', './assets/jam2.png');
 
         //load atlas
         this.load.atlas('bird', './assets/birdwingflap.png', 
@@ -193,14 +193,8 @@ class Play extends Phaser.Scene {
         if (this.score.time == 5) {
             this.background.tint = 0x270578;
             this.toplayer.tint = 0x270578;
-            console.log(this.cloud1.texture);
-            this.cloud1.texture = 'star1';
-            this.cloud2.texture = 'star2';
-            console.log(this.cloud1.texture);
-            //this.star1 = new Cloud(this, 80, 200, 'star1', 0).setOrigin(0, 0); 
-            //this.star2 = new Cloud(this, 300, 300, 'star2', 0).setOrigin(0, 0);   
-           // this.star1.update();
-            //this.star2.update();
+            this.cloud1.setTexture('star1');
+            this.cloud2.setTexture('star2');
         }
         
 
@@ -220,8 +214,8 @@ class Play extends Phaser.Scene {
         if (!this.gameOver) {
             //scroll background
             //TODO: replace this with tinting and clouds. Tie scrollspeed to clouds falling speed instead.
-            scrollSpeed = 4 - this.breadbear.body.velocity.y /10;
-            this.background.tilePositionY -= scrollSpeed;
+            //scrollSpeed = 4 - this.breadbear.body.velocity.y /10;
+            //this.background.tilePositionY -= scrollSpeed;
 
             //TODO: remove this when testing for game is done
             //temp testing for game over logic 
