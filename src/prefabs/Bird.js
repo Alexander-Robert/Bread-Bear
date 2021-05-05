@@ -6,11 +6,4 @@ class Bird extends Phaser.Physics.Arcade.Sprite {
         this.ACCELERATION = 200;
         this.collided = false;
     }
-    update(){
-        //stop birds at correct height
-        if(this.body.velocity.y != 0 && this.y == game.config.height - 32) {
-            this.setAccelerationY(0);
-            this.setVelocityY(0);
-        }
-    }
 }

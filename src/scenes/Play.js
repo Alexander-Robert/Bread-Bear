@@ -9,10 +9,10 @@ class Play extends Phaser.Scene {
         this.load.image('toplayer', './assets/toplayer.png');
         this.load.image('background', './assets/sky.png');
         this.load.image('transition', './assets/transition.png');
-        this.load.image('cloud1', './assets./cloud1.png');
-        this.load.image('cloud2', './assets./cloud2.png');
-        this.load.image('star1', './assets./star1.png');
-        this.load.image('star2', './assets./star2.png');
+        this.load.image('cloud1', './assets/cloud1.png');
+        this.load.image('cloud2', './assets/cloud2.png');
+        this.load.image('star1', './assets/star1.png');
+        this.load.image('star2', './assets/star2.png');
         this.load.image('breadbear', './assets/breadbear2.png');
         this.load.image('butter', './assets/butter2.png');
         this.load.image('avocado', './assets/avocado2.png');
@@ -170,27 +170,27 @@ class Play extends Phaser.Scene {
         this.cloud2.update();
 
         //background color change
-        if (this.score.time == 1) {
+        if (this.score.time == 10) {
             this.background.tint = 0x4972DC;
             this.toplayer.tint = 0x5067DF;   
         }
 
-        if (this.score.time == 2) {
+        if (this.score.time == 20) {
             this.background.tint = 0x5067DF;
             this.toplayer.tint = 0x2847EC;
         }
         
-        if (this.score.time == 3) {
+        if (this.score.time == 30) {
             this.background.tint = 0x2847EC;
             this.toplayer.tint = 0x6217e3;
         }
 
-        if (this.score.time == 4) {
+        if (this.score.time == 40) {
             this.background.tint = 0x6217e3;
             this.toplayer.tint = 0x270578;
         }
 
-        if (this.score.time == 5) {
+        if (this.score.time == 50) {
             this.background.tint = 0x270578;
             this.toplayer.tint = 0x270578;
             this.cloud1.setTexture('star1');
@@ -266,8 +266,9 @@ class Play extends Phaser.Scene {
                 if (xDist < 100) {
                     //velocity is amplified based off of how far away the birds are from bread bear
                     let velocity = (-1 * (100 + (Phaser.Math.Distance.BetweenPoints(bird, this.breadbear)) / 5));
-                    if (bird.y != game.config.height - 35) //if the birds are already swooping up at bread bear
-                        bird.body.setVelocityY(velocity / 1.5); //if the bird is already moving towards bread bear
+                    //if the birds are already swooping up at bread bear
+                    if (bird.y < game.config.height - 50) // && bird.body.velocity > 0)
+                        bird.body.setVelocityY(velocity / 1.5);
                     else
                         bird.body.setVelocityY(velocity);
                 }

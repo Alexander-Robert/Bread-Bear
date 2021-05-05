@@ -25,15 +25,18 @@ class Menu extends Phaser.Scene {
         }
 
         //show menu text
-        this.add.text(game.config.width / 2, game.config.height / 2 - borderUISize - borderPadding,
-            'Bread Bear', menuConfig).setOrigin(0.5);
-        this.add.text(game.config.width / 2, game.config.height / 2,
-            'Use ←→ arrows to move ↑ to start', menuConfig).setOrigin(0.5);
+        this.add.text(game.config.width / 2, game.config.height / 3,
+            'Bread Bear', menuConfig).setOrigin(0.5,0);
+        this.add.text(game.config.width / 2, game.config.height / 2.5 - borderPadding,
+            `Use ←→ arrows to move 
+            ← = easy 
+            ↑ = medium 
+            → = hard`, menuConfig).setOrigin(0.5,0);
         menuConfig.backgroundColor = '#00FF00';
         this.add.text(game.config.width / 2, game.config.height / 2 + borderUISize + borderPadding,
-            'collect butter to speed up', menuConfig).setOrigin(0.5);
-        this.add.text(game.config.width / 2, game.config.height / 2 + borderUISize * 2.5,
-            'too slow and the birds get you', menuConfig).setOrigin(0.5);
+            'collect butter to speed up', menuConfig).setOrigin(0.5,0);
+        this.add.text(game.config.width / 2, game.config.height / 2 + borderUISize * 2,
+            'too slow and the birds get you', menuConfig).setOrigin(0.5,0);
 
         let highScoreString = `HIGHSCORE: 
 points: ${game.highScore.points}
