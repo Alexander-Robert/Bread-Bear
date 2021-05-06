@@ -250,7 +250,7 @@ class Play extends Phaser.Scene {
             //after the warning is done, have the bird fly up
             warning.on('animationcomplete', () => {
                 warning.destroy();
-                if (bird.y < game.config.height - 50)
+                if (randomBird.y < game.config.height - 50)
                     randomBird.body.setVelocityY(-1 * (Phaser.Math.Between(minVelocity, maxVelocity) / 2));
                 else
                     randomBird.body.setVelocityY(-1 * Phaser.Math.Between(minVelocity, maxVelocity));
