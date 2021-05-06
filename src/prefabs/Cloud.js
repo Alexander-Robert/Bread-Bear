@@ -39,7 +39,6 @@ class Cloud extends Phaser.GameObjects.Sprite {
     }
 
     createStars() {
-        console.log("changed");
         this.changeTexture = false; //only triggers once
         this.stars = true;
         this.setTexture('star2');

@@ -44,7 +44,7 @@ class Menu extends Phaser.Scene {
         this.add.sprite(0,0,'title screen').setOrigin(0);
 
         //menu text configuration
-        let menuConfig = {
+        this.menuConfig = {
             fontFamily: 'Courier',
             fontSize: '28px',
             color: '#843605',
@@ -61,21 +61,36 @@ class Menu extends Phaser.Scene {
         this.add.text(game.config.width / 2, game.config.height / 4,
             `Bread Bear
             Use ←→ arrows to move 
-            ← = easy ↑ = medium → = hard`, menuConfig).setOrigin(0.5,0);
-        this.add.text(game.config.width / 2, game.config.height / 3.5 + borderUISize + borderPadding * 4,
+            ← = easy ↑ = medium → = hard
+            ↓ for credits`, this.menuConfig).setOrigin(0.5,0);
+        this.add.text(game.config.width / 2, game.config.height / 3.5 + borderUISize *2.5,
             `collect butter to speed up
-            too slow & the birds get you`, menuConfig).setOrigin(0.5,0);
+            too slow & the birds get you`, this.menuConfig).setOrigin(0.5,0);
 
         let highScoreString = `HIGHSCORE: 
 points: ${game.highScore.points}
 distance: ${game.highScore.distance}
 time: ${game.highScore.time}`;
 
-        this.add.text(game.config.width / 2, game.config.height / 1.5 - borderUISize,
-            highScoreString, menuConfig).setOrigin(0.5);
+        this.add.text(game.config.width / 2, game.config.height / 1.5 - borderPadding * 2.25,
+            highScoreString, this.menuConfig).setOrigin(0.5);
+
+        this.menuConfig.backgroundColor = '#F3B141';
+        this.credits = this.add.text(game.config.width / 2, game.config.height / 2 - 25,
+            `Alexander Robert 
+            programming
+            Thea Gamez 
+            art
+            Fiona Hsu 
+            programming, art, sound
+            sounds used:
+            “Crow Caw” from Jofae
+            “Squelchy squirt” by DrMinky`, this.menuConfig).setOrigin(0.5,0);
+        this.credits.alpha = 0;
 
         // define keys
         keyUP = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
+        keyDOWN = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN);
         keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
         keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
     }
@@ -83,6 +98,7 @@ time: ${game.highScore.time}`;
     update() {
         if (Phaser.Input.Keyboard.JustDown(keyLEFT)) {
             game.difficulty = 1;
+            game.config.physics.arcade.gravity.y = 50;
             this.sound.play('sfx_select');
             this.scene.start('playScene');
         }
@@ -95,6 +111,9 @@ time: ${game.highScore.time}`;
             game.difficulty = 3;
             this.sound.play('sfx_select');
             this.scene.start('playScene');
+        }
+        if (Phaser.Input.Keyboard.JustDown(keyDOWN)) {
+            this.credits.alpha = (this.credits.alpha == 0) ? 1 : 0;
         }
     }
 }

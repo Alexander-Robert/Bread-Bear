@@ -28,7 +28,6 @@ class Breadbear extends Phaser.Physics.Arcade.Sprite {
         }
         //if breadbear is too close to the top of the screen
         if (this.y < 150){
-            //console.log("too high up");
             this.setGravityY(50); //have him fall quicker
         }
         else{
