@@ -94,6 +94,15 @@ class Play extends Phaser.Scene {
 
         this.createAnimations(); //function that handles all anims.create for every atlas
 
+        //implement clouds as a group
+        this.cloudGroup = this.add.group({
+            runChildUpdate: true,   // make sure update runs on group children
+        });
+        for (let i = 0; i != 2; i++) {
+            this.cloudGroup.add(new Cloud(this, 30 + (220 * i), 200 + (100 * i), 'cloud' + (i + 1), 0).setOrigin(0.5));
+        }
+        this.changeCloudtoStar = true; //bool used to make the transition of cloud to star happen only once.
+
         //implement birds as a group
         this.birdGroup = this.add.group({
             runChildUpdate: true,   // make sure update runs on group children
@@ -127,15 +136,6 @@ class Play extends Phaser.Scene {
             callbackScope: this,
             loop: true
         });
-
-        //implement clouds as a group
-        this.cloudGroup = this.add.group({
-            runChildUpdate: true,   // make sure update runs on group children
-        });
-        for (let i = 0; i != 2; i++) {
-            this.cloudGroup.add(new Cloud(this, 30 + (220 * i), 200 + (100 * i), 'cloud' + (i+1), 0).setOrigin(0.5));
-        }
-        this.changeCloudtoStar = true; //bool used to make the transition of cloud to star happen only once.
 
         //update time counter in score
         this.updateScoreTimer = this.time.addEvent({

@@ -72,6 +72,8 @@ points: ${game.highScore.points}
 distance: ${game.highScore.distance}
 time: ${game.highScore.time}`;
 
+        this.menuConfig.backgroundColor = '#6CC3FD';
+        
         this.add.text(game.config.width / 2, game.config.height / 1.5 - borderPadding * 2.25,
             highScoreString, this.menuConfig).setOrigin(0.5);
 
