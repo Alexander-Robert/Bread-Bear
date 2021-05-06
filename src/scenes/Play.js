@@ -4,6 +4,10 @@ class Play extends Phaser.Scene {
     }
 
     create() { //remember last things added in create are made first!!!!
+        //play background music
+        this.music = this.sound.add('music', { loop: true });
+        this.music.play();
+
         // add top background border
         this.toplayer = this.add.sprite(0, 0, 'toplayer').setOrigin(0, 0);
         this.toplayer.tint = 0x4972DC;
@@ -12,10 +16,6 @@ class Play extends Phaser.Scene {
         this.background = this.add.tileSprite(0, 0,
             game.config.width, game.config.height, 'background').setOrigin(0, 0);
         this.background.tint = 0x6CC3FD;
-
-        // add clouds
-        this.cloud1 = new Cloud(this, 30, 200, 'cloud1', 0).setOrigin(0, 0);
-        this.cloud2 = new Cloud(this, 250, 300, 'cloud2', 0).setOrigin(0, 0);
 
         //define keys
         //restart key
@@ -48,12 +48,11 @@ class Play extends Phaser.Scene {
 
         //add text boxes to display values on screen
         this.pointsText = this.add.text(50, 25, this.score.points, this.scoreConfig);
-        this.distanceText = this.add.text(game.config.width / 2, 25, this.score.distance, this.scoreConfig);
-        this.timeText = this.add.text(game.config.width - 75, 25, this.score.time, this.scoreConfig);
 
         //create player's character
         this.breadbear = new Breadbear(this, game.config.width / 2, game.config.height - playerHeightOffset,
             'breadbear');
+        this.breadbear.setDepth(100);
         this.breadbear.setImmovable(true);
         this.breadbear.body.setAllowGravity(false);
         this.time.addEvent({ //after a few seconds, the player will start to fall
@@ -68,7 +67,7 @@ class Play extends Phaser.Scene {
 
         //create a physics body with no texture (used to have birds fall back to position after swooping)
         this.phantomBox = this.physics.add.sprite(game.config.width / 2,
-            game.config.height - 25).setOrigin(0, 0); //creates at said position
+            game.config.height + 25).setOrigin(0, 0); //creates at said position
         this.phantomBox.body.setSize(game.config.width + 100, 20); //makes it a rectangle of said dimensions
         this.phantomBox.setImmovable(true); //collision doesn't move this object
         this.phantomBox.body.setAllowGravity(false); //gravity should not affect this object
@@ -100,7 +99,7 @@ class Play extends Phaser.Scene {
             runChildUpdate: true,   // make sure update runs on group children
         });
         for (let i = 0; i != 10; i++) {
-            let bird = new Bird(this, 16 + (i * 50), game.config.height - 33, 'bird');
+            let bird = new Bird(this, 16 + (i * 50), game.config.height + 16, 'bird');
             bird.anims.play('birdflap');
             this.birdGroup.add(bird);
         }
@@ -116,24 +115,30 @@ class Play extends Phaser.Scene {
             loop: true
         });
 
+        //implement clouds as a group
+        this.cloudGroup = this.add.group({
+            runChildUpdate: true,   // make sure update runs on group children
+        });
+        for (let i = 0; i != 2; i++) {
+            this.cloudGroup.add(new Cloud(this, 30 + (220 * i), 200 + (100 * i), 'cloud' + (i+1), 0).setOrigin(0.5));
+        }
+        this.changeCloudtoStar = true; //bool used to make the transition of cloud to star happen only once.
+
         //update time counter in score
-        //TODO: implement updating the distance in the callback function
         this.updateScoreTimer = this.time.addEvent({
             delay: 1000,
             callback: () => {
                 this.score.time++;
-                this.timeText.text = this.score.time;
             },
             callbackScope: this,
             loop: true
         });
 
-
+        //update distance counter in score
         this.updateDistanceTimer = this.time.addEvent({
             delay: 100,
             callback: () => {
                 this.score.distance++;
-                this.distanceText.text = this.score.distance;
             },
             callbackScope: this,
             loop: true
@@ -145,63 +150,48 @@ class Play extends Phaser.Scene {
     }
 
     update() {
-
-        this.cloud1.update();
-        this.cloud2.update();
-
-        //background color change
-        if (this.score.time == 10) {
-            this.background.tint = 0x4972DC;
-            this.toplayer.tint = 0x5067DF;
-        }
-
-        if (this.score.time == 20) {
-            this.background.tint = 0x5067DF;
-            this.toplayer.tint = 0x2847EC;
-        }
-
-        if (this.score.time == 30) {
-            this.background.tint = 0x2847EC;
-            this.toplayer.tint = 0x6217e3;
-        }
-
-        if (this.score.time == 40) {
-            this.background.tint = 0x6217e3;
-            this.toplayer.tint = 0x270578;
-        }
-
-        if (this.score.time == 50) {
-            this.background.tint = 0x270578;
-            this.toplayer.tint = 0x270578;
-            this.cloud1.setTexture('star1');
-            this.cloud2.setTexture('star2');
-        }
-
-
         //check key input for restart
         if (this.gameOver && Phaser.Input.Keyboard.JustDown(keyDOWN)) {
+            this.music.stop();
             this.scene.restart();
         }
         if (this.gameOver && Phaser.Input.Keyboard.JustDown(keyUP)) {
+            this.music.stop();
             this.scene.start("menuScene");
         }
 
+        this.updateBackground();
         //put this outside the if (!this.gameOver) block because it should update reguardless
         //check collisions with the birds and phantomBox
         this.physics.world.collide(this.birdGroup, this.phantomBox);
 
         //update while game is going
         if (!this.gameOver) {
-            //scroll background
-            //TODO: replace this with tinting and clouds. Tie scrollspeed to clouds falling speed instead.
-            //scrollSpeed = 4 - this.breadbear.body.velocity.y /10;
-            //this.background.tilePositionY -= scrollSpeed;
-
             //update bread bear
             this.breadbear.update();
 
-            if(this.breadbear.body.velocity.y < 0 ) //if bread bear is being boosted
+            //if bread bear is being boosted, add distance and
+            //have clouds falling speed be affected by breadbear's speed
+            if (this.breadbear.body.velocity.y < 0) {
                 this.score.distance++;
+                let cloudArray = this.cloudGroup.getChildren();
+                for (let cloud of cloudArray) {
+                    if(!cloud.stars) //if it's textured as a cloud
+                        cloud.ySpeed += 0.02;
+                    else             //if it's textured to be a star
+                        cloud.ySpeed += 0.01;
+                }
+            }
+            else {
+                let cloudArray = this.cloudGroup.getChildren();
+                for (let cloud of cloudArray) {
+                    if(!cloud.stars) //if it's textured as a cloud
+                        cloud.ySpeed -= 0.01;
+                    else             //if it's textured to be a star
+                        cloud.ySpeed -= 0.005;
+                }
+            }
+
             //if bread bear has fallen off screen, game over
             if (this.breadbear.y > game.config.height + this.breadbear.height)
                 this.stopGame();
@@ -240,11 +230,8 @@ class Play extends Phaser.Scene {
     birdSwoop() {
         let birdArray = this.birdGroup.getChildren();
         let easyMode = (minVelocity, maxVelocity) => { //choose a random bird to fly up a random height
-            let randomBird = birdArray[Phaser.Math.Between(0, birdArray.length - 1)];
-            if (randomBird.y != game.config.height - 35) { //make sure the bird we're selecting isn't already swooping
-                randomBird = birdArray[Phaser.Math.Between(0, birdArray.length - 1)];
-            }
-            let warning = this.add.sprite(bird.x, bird.y - bird.height, 'warning');
+            let randomBird = birdArray[Math.floor(Phaser.Math.Between(0, birdArray.length - 1))];
+            let warning = this.add.sprite(randomBird.x, randomBird.y - randomBird.height, 'warning');
             //spawn a warning above the bird
             warning.anims.play('warning anim');
             //after the warning is done, have the bird fly up
@@ -367,5 +354,46 @@ time: ${game.highScore.time}`,
             }),
             frameRate: 10,
         });
+    }
+
+    updateBackground() {
+        //background color change
+        if (this.score.time == 10) {
+            this.background.tint = 0x4972DC;
+            this.toplayer.tint = 0x5067DF;
+        }
+
+        if (this.score.time == 20) {
+            this.background.tint = 0x5067DF;
+            this.toplayer.tint = 0x2847EC;
+        }
+
+        if (this.score.time == 30) {
+            this.background.tint = 0x2847EC;
+            this.toplayer.tint = 0x6217e3;
+        }
+
+        if (this.score.time == 40) {
+            this.background.tint = 0x6217e3;
+            this.toplayer.tint = 0x270578;
+        }
+
+        if ((this.score.time == 50) && (this.changeCloudtoStar)) {
+            this.changeCloudtoStar = false;
+            this.background.tint = 0x270578;
+            this.toplayer.tint = 0x270578;
+            let cloudArray = this.cloudGroup.getChildren();
+            for (let cloud of cloudArray) {
+                cloud.changeTexture = true;
+            }
+            for (let i = 0; i < 10; i++) {
+                let spawnDelay = Math.floor(Phaser.Math.Between(1000,3000)) * (i + 1);
+                this.clock = this.time.delayedCall(spawnDelay, () => {
+                    let cloud = new Cloud(this, game.config.height + 100, 0, 'cloud1', 0).setOrigin(0.5);
+                    cloud.changeTexture = true;
+                    this.cloudGroup.add(cloud);
+                }, null, this);
+            }
+        }
     }
 }

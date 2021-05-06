@@ -5,7 +5,7 @@ class Spread extends Phaser.Physics.Arcade.Sprite {
         scene.physics.add.existing(this);
         this.boostPlayer = speedUp; //bool to check if collision should boost or slow player
         this.MAX_VELOCITY = 200;
-
+        this.setGravityY(0); //have spreads fall at a constant rate
     }
     create() {
         //spawn spread on 1 of 3 "lanes"
