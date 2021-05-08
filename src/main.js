@@ -1,3 +1,12 @@
+/*
+Collaborators:
+Alexander Robert - programming
+Thea Gamez - art
+Fiona Hsu - programming, art, sound
+Game title: Bread Bear
+Date completed: 5/5/2021
+*/
+
 //main game object
 let config = {
     type: Phaser.AUTO,
